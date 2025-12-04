@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import logoMegafone from "@/assets/logo-megafone.png";
 
 const navLinks = [
@@ -17,16 +18,12 @@ export function Header() {
   const location = useLocation();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-lg border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
-            <img src={logoMegafone} alt="Megafone" className="h-12 w-auto" />
-            <div className="hidden sm:block">
-              <span className="font-display text-xl font-bold text-primary">MEGAFONE</span>
-              <span className="block text-xs text-muted-foreground tracking-widest">COMUNICAÇÃO SINDICAL</span>
-            </div>
+            <img src={logoMegafone} alt="Megafone" className="h-14 w-auto" />
           </Link>
 
           {/* Desktop Nav */}
@@ -46,21 +43,25 @@ export function Header() {
             ))}
           </nav>
 
-          {/* CTA Button */}
-          <div className="hidden lg:block">
+          {/* Right Side */}
+          <div className="hidden lg:flex items-center gap-3">
+            <ThemeToggle />
             <Button variant="hero" size="lg" asChild>
               <Link to="/contato">Fale Conosco</Link>
             </Button>
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden p-2 text-foreground"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Menu"
-          >
-            {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
+          <div className="lg:hidden flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              className="p-2 text-foreground"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Menu"
+            >
+              {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
+          </div>
         </div>
       </div>
 

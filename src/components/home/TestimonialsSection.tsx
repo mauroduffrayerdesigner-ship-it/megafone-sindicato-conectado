@@ -20,12 +20,12 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section className="py-24 bg-card">
+    <section className="py-24 bg-background">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
           <span className="text-primary font-display uppercase tracking-widest text-sm">Depoimentos</span>
-          <h2 className="font-display text-4xl sm:text-5xl font-bold mt-4 mb-6">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold mt-4 mb-6 text-foreground">
             O Que Nossos Parceiros Dizem
           </h2>
           <p className="text-muted-foreground text-lg">
@@ -34,24 +34,24 @@ export function TestimonialsSection() {
         </div>
 
         {/* Testimonials Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="relative bg-background border border-border rounded-xl p-8"
+              className="relative bg-card border border-border rounded-2xl p-8 card-hover"
             >
               <Quote className="text-primary/20 absolute top-6 right-6" size={48} />
               <p className="text-foreground leading-relaxed mb-6 relative z-10">
                 "{testimonial.quote}"
               </p>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+              <div className="flex items-center gap-4 border-t border-border pt-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                   <span className="font-display font-bold text-primary">
                     {testimonial.author[0]}
                   </span>
                 </div>
                 <div>
-                  <p className="font-semibold">{testimonial.author}</p>
+                  <p className="font-semibold text-foreground">{testimonial.author}</p>
                   <p className="text-sm text-muted-foreground">{testimonial.role}</p>
                 </div>
               </div>
