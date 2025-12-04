@@ -57,7 +57,7 @@ const Sobre = () => {
             <div>
               <span className="text-primary font-display uppercase tracking-widest text-sm">Nossa História</span>
               <h2 className="font-display text-4xl font-bold mt-4 mb-6">
-                Militância e Profissionalismo
+                Compromisso e Profissionalismo
               </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
                 <p>
@@ -68,7 +68,7 @@ const Sobre = () => {
                 <p>
                   Anos depois, aquela equipe que se conheceu em 2016 se reencontrou em 2020 
                   para criar a <strong className="text-foreground">MegaFone Comunicação Sindical</strong> - 
-                  Unindo militância e profissionalismo a serviço da classe trabalhadora.
+                  Unindo compromisso e profissionalismo a serviço da classe trabalhadora.
                 </p>
                 <p>
                   Nossa empresa é especializada em assessoria de imprensa, produção de conteúdo 

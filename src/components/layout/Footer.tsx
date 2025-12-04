@@ -100,7 +100,7 @@ export function Footer() {
             © {new Date().getFullYear()} Megafone Comunicação Sindical. Todos os direitos reservados.
           </p>
           <p className="text-muted-foreground text-sm">
-            Unindo militância e profissionalismo a serviço da classe trabalhadora.
+            Unindo compromisso e profissionalismo a serviço da classe trabalhadora.
           </p>
         </div>
       </div>
