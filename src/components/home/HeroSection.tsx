@@ -1,83 +1,89 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Megaphone, ArrowRight } from "lucide-react";
+import { ArrowRight, CheckCircle } from "lucide-react";
+import logoMegafone from "@/assets/logo-megafone.png";
+
+const highlights = [
+  "Gestão de Redes Sociais",
+  "Disparo em Massa WhatsApp",
+  "Criação de Sites",
+];
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-dark">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-20 left-10 text-[20rem] font-display font-bold text-primary">M</div>
-        <div className="absolute bottom-20 right-10 text-[20rem] font-display font-bold text-primary">F</div>
-      </div>
+    <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-light pt-20">
+      {/* Decorative Elements */}
+      <div className="absolute top-0 right-0 w-1/2 h-full bg-primary/5 rounded-bl-[100px] hidden lg:block" />
+      <div className="absolute top-40 right-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl hidden lg:block" />
       
-      {/* Glow Effect */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[150px]" />
-
       <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-secondary/50 border border-border rounded-full px-4 py-2 mb-8 animate-fade-in">
-            <Megaphone className="text-primary" size={18} />
-            <span className="text-sm text-muted-foreground">Comunicação que mobiliza</span>
-          </div>
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Content */}
+          <div className="order-2 lg:order-1">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-4 py-2 mb-6 animate-fade-in">
+              <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+              <span className="text-sm text-primary font-medium">Comunicação que mobiliza</span>
+            </div>
 
-          {/* Title with Echo Effect */}
-          <div className="relative mb-6">
-            <h1 
-              className="megafone-title text-5xl sm:text-6xl lg:text-8xl text-primary megafone-echo animate-slide-up"
-              data-text="MEGAFONE"
-            >
-              MEGAFONE
+            {/* Title */}
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 animate-slide-up text-foreground">
+              Fortaleça a <span className="text-primary">Comunicação</span> do seu Sindicato
             </h1>
-            <p className="font-display text-xl sm:text-2xl tracking-[0.3em] text-muted-foreground mt-2 animate-slide-up delay-100">
-              COMUNICAÇÃO SINDICAL
+
+            {/* Description */}
+            <p className="text-lg text-muted-foreground max-w-xl mb-8 leading-relaxed animate-slide-up delay-100">
+              Somos especialistas em comunicação sindical. Conectamos sindicatos às suas bases 
+              através de estratégias digitais eficazes e conteúdo que engaja.
             </p>
-          </div>
 
-          {/* Description */}
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-slide-up delay-200">
-            Fortalecemos a luta dos trabalhadores através de estratégias de comunicação digital eficazes. 
-            <span className="text-foreground font-semibold"> Redes sociais, design, WhatsApp e muito mais.</span>
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up delay-300">
-            <Button variant="hero" size="xl" asChild>
-              <Link to="/contato">
-                Solicitar Proposta
-                <ArrowRight size={20} />
-              </Link>
-            </Button>
-            <Button variant="hero-outline" size="xl" asChild>
-              <Link to="/servicos">
-                Nossos Serviços
-              </Link>
-            </Button>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-8 mt-16 animate-fade-in delay-400">
-            <div className="text-center">
-              <span className="block text-3xl sm:text-4xl font-display font-bold text-primary">5+</span>
-              <span className="text-sm text-muted-foreground">Anos de Experiência</span>
+            {/* Highlights */}
+            <div className="flex flex-wrap gap-4 mb-8 animate-slide-up delay-200">
+              {highlights.map((item) => (
+                <div key={item} className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="text-primary" size={18} />
+                  <span className="text-foreground">{item}</span>
+                </div>
+              ))}
             </div>
-            <div className="text-center">
-              <span className="block text-3xl sm:text-4xl font-display font-bold text-primary">50+</span>
-              <span className="text-sm text-muted-foreground">Sindicatos Atendidos</span>
-            </div>
-            <div className="text-center">
-              <span className="block text-3xl sm:text-4xl font-display font-bold text-primary">10K+</span>
-              <span className="text-sm text-muted-foreground">Trabalhadores Alcançados</span>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 animate-slide-up delay-300">
+              <Button variant="hero" size="xl" asChild>
+                <Link to="/contato">
+                  Solicitar Proposta
+                  <ArrowRight size={20} />
+                </Link>
+              </Button>
+              <Button variant="outline" size="xl" asChild className="border-2">
+                <Link to="/servicos">
+                  Nossos Serviços
+                </Link>
+              </Button>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-float">
-        <div className="w-6 h-10 border-2 border-muted-foreground rounded-full flex justify-center">
-          <div className="w-1 h-3 bg-primary rounded-full mt-2 animate-pulse" />
+          {/* Visual */}
+          <div className="order-1 lg:order-2 flex justify-center animate-fade-in">
+            <div className="relative">
+              <div className="w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 rounded-3xl bg-card shadow-card flex items-center justify-center border border-border">
+                <img 
+                  src={logoMegafone} 
+                  alt="Megafone Comunicação Sindical" 
+                  className="w-4/5 h-auto"
+                />
+              </div>
+              {/* Floating Stats */}
+              <div className="absolute -bottom-4 -left-4 bg-card border border-border rounded-2xl p-4 shadow-soft animate-float">
+                <span className="block text-2xl font-display font-bold text-primary">50+</span>
+                <span className="text-xs text-muted-foreground">Sindicatos Atendidos</span>
+              </div>
+              <div className="absolute -top-4 -right-4 bg-card border border-border rounded-2xl p-4 shadow-soft animate-float delay-300">
+                <span className="block text-2xl font-display font-bold text-primary">5+</span>
+                <span className="text-xs text-muted-foreground">Anos de Experiência</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
