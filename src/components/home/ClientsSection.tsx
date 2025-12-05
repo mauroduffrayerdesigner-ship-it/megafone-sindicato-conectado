@@ -1,6 +1,6 @@
 const clients = [
   { name: "SINDICATO DOS SERVIDORES DE SÃO JOSÉ DOS PINHAIS", initials: "SS" },
-  { name: "SINDICATO DOS BANCÁRIOS", initials: "SB" },
+  { name: "SINDICATO DOS BANCÁRIOS DE CURITIBA", initials: "SB" },
   { name: "SINDPETRO", initials: "SP" },
   { name: "SINDICATO DOS PROFESSORES", initials: "SE" },
   { name: "SINDICATO DOS ENFERMEIROS", initials: "EN" },
