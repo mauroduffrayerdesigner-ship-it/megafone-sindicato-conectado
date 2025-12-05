@@ -25,13 +25,15 @@ export function usePageTracking() {
       sessionStorage.setItem("session_id", sessionId);
     }
 
-    // Registrar a visita (fire and forget)
-    supabase.from("page_views").insert({
-      path: location.pathname,
-      referrer: document.referrer || null,
-      user_agent: navigator.userAgent,
-      visitor_id: visitorId,
-      session_id: sessionId,
-    });
+    // Registrar a visita via Edge Function (bypassa RLS)
+    supabase.functions.invoke('track-page-view', {
+      body: {
+        path: location.pathname,
+        referrer: document.referrer || null,
+        user_agent: navigator.userAgent,
+        visitor_id: visitorId,
+        session_id: sessionId,
+      }
+    }).catch(err => console.error('Error tracking page view:', err));
   }, [location.pathname]);
 }
