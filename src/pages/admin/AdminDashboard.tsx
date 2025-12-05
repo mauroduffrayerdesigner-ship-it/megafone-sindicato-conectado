@@ -267,7 +267,7 @@ export default function AdminDashboard() {
                         #{index + 1}
                       </span>
                       <span className="font-medium truncate max-w-[200px]">
-                        {page.path === "/" ? "Home" : page.path}
+                        {page.path === "/" ? "Início" : page.path}
                       </span>
                     </div>
                     <Badge variant="secondary">{page.views} visitas</Badge>

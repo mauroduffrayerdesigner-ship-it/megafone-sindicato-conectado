@@ -21,10 +21,10 @@ export function Footer() {
           <div>
             <h4 className="font-display text-lg font-bold mb-4 text-foreground">Navegação</h4>
             <ul className="space-y-3">
-              {["Home", "Sobre", "Serviços", "Blog", "Contato"].map((item) => (
+              {["Início", "Sobre", "Serviços", "Blog", "Contato"].map((item) => (
                 <li key={item}>
                   <Link
-                    to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
+                    to={item === "Início" ? "/" : `/${item.toLowerCase()}`}
                     className="text-muted-foreground hover:text-primary transition-colors"
                   >
                     {item}
