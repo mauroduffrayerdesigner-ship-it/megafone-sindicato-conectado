@@ -8,9 +8,9 @@ import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -21,7 +21,8 @@ import {
   Plus, 
   Settings,
   Trash2,
-  Check
+  Check,
+  CircleDashed
 } from "lucide-react";
 
 const integrationTypes = [
@@ -71,6 +72,13 @@ export default function IntegrationsPage() {
 
   const handleSave = async () => {
     if (!selectedType) return;
+
+    // Validar se pelo menos um campo foi preenchido
+    const hasValues = selectedType.fields.some(field => formData[field.key]?.trim());
+    if (!hasValues) {
+      toast({ title: "Preencha pelo menos um campo", variant: "destructive" });
+      return;
+    }
 
     try {
       const existing = integrations.find((i) => i.name === selectedType.id);
@@ -132,7 +140,22 @@ export default function IntegrationsPage() {
     setIsDialogOpen(true);
   };
 
-  const getIntegrationStatus = (typeId: string) => {
+  // Verifica se a integração está configurada (tem valores reais nos campos)
+  const isIntegrationConfigured = (typeId: string) => {
+    const integration = integrations.find((i) => i.name === typeId);
+    if (!integration) return false;
+    
+    const config = integration.config as Record<string, string> | null;
+    if (!config) return false;
+    
+    // Verificar se pelo menos um campo tem valor
+    const type = integrationTypes.find(t => t.id === typeId);
+    if (!type) return false;
+    
+    return type.fields.some(field => config[field.key]?.trim?.());
+  };
+
+  const getIntegration = (typeId: string) => {
     return integrations.find((i) => i.name === typeId);
   };
 
@@ -145,77 +168,117 @@ export default function IntegrationsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="font-display text-3xl font-bold">Integrações</h1>
-        <p className="text-muted-foreground mt-1">
-          Configure pixels de rastreamento e webhooks
+      <div className="border-b border-border pb-6">
+        <h1 className="font-display text-3xl font-bold text-foreground">Integrações</h1>
+        <p className="text-muted-foreground mt-2">
+          Configure pixels de rastreamento e webhooks para potencializar sua comunicação
         </p>
       </div>
 
       {/* Tracking Integrations */}
-      <div>
-        <h2 className="text-lg font-semibold mb-4">Rastreamento</h2>
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <BarChart3 className="w-5 h-5 text-primary" />
+          <h2 className="text-xl font-semibold text-foreground">Rastreamento</h2>
+        </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {integrationTypes
             .filter((t) => t.type === "tracking")
             .map((type) => {
-              const status = getIntegrationStatus(type.id);
+              const isConfigured = isIntegrationConfigured(type.id);
+              const integration = getIntegration(type.id);
               const Icon = type.icon;
               
               return (
-                <Card key={type.id}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-primary/10">
-                          <Icon className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-base">{type.name}</CardTitle>
-                          <CardDescription className="text-sm">
-                            {type.description}
-                          </CardDescription>
-                        </div>
+                <Card 
+                  key={type.id} 
+                  className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg ${
+                    isConfigured ? 'border-green-500/30 bg-green-500/5' : 'border-border'
+                  }`}
+                >
+                  {/* Status indicator */}
+                  <div className={`absolute top-0 left-0 right-0 h-1 ${
+                    isConfigured ? 'bg-green-500' : 'bg-muted'
+                  }`} />
+                  
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-3 rounded-xl ${
+                        isConfigured 
+                          ? 'bg-green-500/10 text-green-600' 
+                          : 'bg-muted text-muted-foreground'
+                      }`}>
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <div className="flex-1">
+                        <CardTitle className="text-lg font-semibold">{type.name}</CardTitle>
+                        <CardDescription className="text-sm mt-0.5">
+                          {type.description}
+                        </CardDescription>
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      {status ? (
-                        <>
-                          <div className="flex items-center gap-2">
-                            <Check className="w-4 h-4 text-green-500" />
-                            <span className="text-sm text-muted-foreground">
-                              Configurado
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Switch
-                              checked={status.active}
-                              onCheckedChange={() => handleToggle(status)}
-                            />
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => openConfig(type)}
-                            >
-                              <Settings className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </>
-                      ) : (
+                  
+                  <CardContent className="pt-0">
+                    {isConfigured && integration ? (
+                      <div className="space-y-4">
+                        {/* Status badge */}
+                        <div className="flex items-center gap-2 px-3 py-2 bg-green-500/10 rounded-lg">
+                          <Check className="w-4 h-4 text-green-600" />
+                          <span className="text-sm font-medium text-green-700 dark:text-green-400">
+                            Configurado
+                          </span>
+                          <span className={`ml-auto text-xs px-2 py-0.5 rounded-full ${
+                            integration.active 
+                              ? 'bg-green-500 text-white' 
+                              : 'bg-muted text-muted-foreground'
+                          }`}>
+                            {integration.active ? 'Ativo' : 'Inativo'}
+                          </span>
+                        </div>
+                        
+                        {/* Actions */}
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={integration.active}
+                            onCheckedChange={() => handleToggle(integration)}
+                          />
+                          <span className="text-sm text-muted-foreground flex-1">
+                            {integration.active ? 'Ativado' : 'Desativado'}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openConfig(type)}
+                            className="gap-2"
+                          >
+                            <Settings className="w-4 h-4" />
+                            Editar
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {/* Not configured status */}
+                        <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg">
+                          <CircleDashed className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">
+                            Não configurado
+                          </span>
+                        </div>
+                        
                         <Button
-                          variant="outline"
-                          className="w-full"
+                          variant="default"
+                          className="w-full gap-2"
                           onClick={() => openConfig(type)}
                         >
-                          <Plus className="w-4 h-4 mr-2" />
+                          <Plus className="w-4 h-4" />
                           Configurar
                         </Button>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               );
@@ -224,15 +287,19 @@ export default function IntegrationsPage() {
       </div>
 
       {/* Webhooks */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Webhooks</h2>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Webhook className="w-5 h-5 text-primary" />
+            <h2 className="text-xl font-semibold text-foreground">Webhooks</h2>
+          </div>
           <Button
             variant="outline"
             size="sm"
             onClick={() => openConfig(integrationTypes.find((t) => t.id === "webhook")!)}
+            className="gap-2"
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="w-4 h-4" />
             Novo Webhook
           </Button>
         </div>
@@ -240,41 +307,72 @@ export default function IntegrationsPage() {
         <Card>
           <CardContent className="pt-6">
             {integrations.filter((i) => i.type === "webhook").length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Webhook className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Nenhum webhook configurado.</p>
-                <p className="text-sm">
-                  Webhooks permitem enviar dados automaticamente para outros sistemas.
+              <div className="text-center py-12">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                  <Webhook className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-medium text-foreground mb-2">
+                  Nenhum webhook configurado
+                </h3>
+                <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+                  Webhooks permitem enviar dados automaticamente para outros sistemas quando eventos ocorrem.
                 </p>
+                <Button
+                  variant="outline"
+                  className="mt-4 gap-2"
+                  onClick={() => openConfig(integrationTypes.find((t) => t.id === "webhook")!)}
+                >
+                  <Plus className="w-4 h-4" />
+                  Criar primeiro webhook
+                </Button>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {integrations
                   .filter((i) => i.type === "webhook")
                   .map((webhook) => (
                     <div
                       key={webhook.id}
-                      className="flex items-center justify-between p-4 bg-muted/50 rounded-lg"
+                      className={`flex items-center gap-4 p-4 rounded-xl border transition-colors ${
+                        webhook.active 
+                          ? 'bg-green-500/5 border-green-500/30' 
+                          : 'bg-muted/30 border-border'
+                      }`}
                     >
+                      <div className={`p-2 rounded-lg ${
+                        webhook.active ? 'bg-green-500/10' : 'bg-muted'
+                      }`}>
+                        <Webhook className={`w-5 h-5 ${
+                          webhook.active ? 'text-green-600' : 'text-muted-foreground'
+                        }`} />
+                      </div>
+                      
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">
+                        <p className="font-medium truncate text-foreground">
                           {(webhook.config as any)?.url || "URL não configurada"}
                         </p>
                         <p className="text-sm text-muted-foreground">
                           Eventos: {(webhook.config as any)?.events || "Todos"}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2 ml-4">
-                        <Switch
-                          checked={webhook.active}
-                          onCheckedChange={() => handleToggle(webhook)}
-                        />
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={webhook.active}
+                            onCheckedChange={() => handleToggle(webhook)}
+                          />
+                          <span className="text-xs text-muted-foreground min-w-[50px]">
+                            {webhook.active ? 'Ativo' : 'Inativo'}
+                          </span>
+                        </div>
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDelete(webhook.id)}
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
                         >
-                          <Trash2 className="w-4 h-4 text-destructive" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
@@ -287,16 +385,24 @@ export default function IntegrationsPage() {
 
       {/* Config Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>
-              {selectedType?.name ? `Configurar ${selectedType.name}` : "Configurar Integração"}
+            <DialogTitle className="flex items-center gap-2">
+              {selectedType && (
+                <>
+                  <selectedType.icon className="w-5 h-5 text-primary" />
+                  Configurar {selectedType.name}
+                </>
+              )}
             </DialogTitle>
+            <DialogDescription>
+              Preencha os dados abaixo para ativar esta integração.
+            </DialogDescription>
           </DialogHeader>
           {selectedType && (
-            <div className="space-y-4">
+            <div className="space-y-4 pt-2">
               {selectedType.fields.map((field) => (
-                <div key={field.key}>
+                <div key={field.key} className="space-y-2">
                   <Label htmlFor={field.key}>{field.label}</Label>
                   <Input
                     id={field.key}
@@ -308,10 +414,11 @@ export default function IntegrationsPage() {
                       }))
                     }
                     placeholder={field.placeholder}
+                    className="font-mono text-sm"
                   />
                 </div>
               ))}
-              <div className="flex gap-2 pt-4">
+              <div className="flex gap-3 pt-4">
                 <Button
                   variant="outline"
                   className="flex-1"
@@ -319,7 +426,8 @@ export default function IntegrationsPage() {
                 >
                   Cancelar
                 </Button>
-                <Button className="flex-1" onClick={handleSave}>
+                <Button className="flex-1 gap-2" onClick={handleSave}>
+                  <Check className="w-4 h-4" />
                   Salvar
                 </Button>
               </div>
