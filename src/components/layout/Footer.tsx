@@ -99,9 +99,18 @@ export function Footer() {
           <p className="text-muted-foreground text-sm">
             © {new Date().getFullYear()} Megafone Comunicação Sindical. Todos os direitos reservados.
           </p>
-          <p className="text-muted-foreground text-sm">
-            Unindo compromisso e profissionalismo a serviço da classe trabalhadora.
-          </p>
+          <div className="flex items-center gap-4">
+            <Link 
+              to="/politica-de-privacidade" 
+              className="text-muted-foreground text-sm hover:text-primary transition-colors"
+            >
+              Política de Privacidade
+            </Link>
+            <span className="text-muted-foreground text-sm hidden md:inline">•</span>
+            <p className="text-muted-foreground text-sm">
+              A serviço da classe trabalhadora
+            </p>
+          </div>
         </div>
       </div>
     </footer>
