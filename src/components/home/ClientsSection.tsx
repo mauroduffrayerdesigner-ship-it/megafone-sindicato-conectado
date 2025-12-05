@@ -1,12 +1,17 @@
+import sindarspenLogo from "@/assets/clients/sindarspen.png";
+import sintesparLogo from "@/assets/clients/sintespar.png";
+import sismmarLogo from "@/assets/clients/sismmar.png";
+import appToledoLogo from "@/assets/clients/app-toledo.png";
+import sinsepLogo from "@/assets/clients/sinsep.png";
+import bancariosCuritibaLogo from "@/assets/clients/bancarios-curitiba.png";
+
 const clients = [
-  { name: "SINDICATO DOS SERVIDORES DE SÃO JOSÉ DOS PINHAIS", initials: "SS" },
-  { name: "SINDICATO DOS BANCÁRIOS DE CURITIBA", initials: "SB" },
-  { name: "SINDPETRO", initials: "SP" },
-  { name: "SINDICATO DOS PROFESSORES", initials: "SE" },
-  { name: "SINDICATO DOS ENFERMEIROS", initials: "EN" },
-  { name: "SINDICATO DOS RODOVIÁRIOS", initials: "SR" },
-  { name: "SIND. TRAB. CORREIOS", initials: "CT" },
-  { name: "SIND. SERVIDORES PÚBLICOS", initials: "SS" },
+  { name: "Sindicato da Polícia Penal do Paraná", logo: sindarspenLogo },
+  { name: "Sindicato dos Técnicos em Segurança do Trabalho", logo: sintesparLogo },
+  { name: "Sindicato do Magistério de Araucária", logo: sismmarLogo },
+  { name: "APP Sindicato - Núcleo Toledo", logo: appToledoLogo },
+  { name: "Sindicato dos Servidores Públicos", logo: sinsepLogo },
+  { name: "Sindicato dos Bancários de Curitiba", logo: bancariosCuritibaLogo },
 ];
 
 export function ClientsSection() {
@@ -27,17 +32,19 @@ export function ClientsSection() {
         </div>
 
         {/* Clients Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-6">
           {clients.map((client, index) => (
             <div
               key={client.name}
               className="group bg-card border border-border rounded-xl p-6 text-center card-hover"
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <span className="font-display font-bold text-xl text-primary">
-                  {client.initials}
-                </span>
+              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-background flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
+                <img 
+                  src={client.logo} 
+                  alt={`Logo ${client.name}`}
+                  className="w-full h-full object-contain p-1"
+                />
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-tight">
                 {client.name}
