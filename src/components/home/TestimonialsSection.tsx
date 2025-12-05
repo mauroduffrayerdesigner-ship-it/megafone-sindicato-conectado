@@ -8,7 +8,7 @@ const testimonials = [
   },
   {
     quote: "A Megafone vem realizado diversas campanhas sindicais, em todas elas os trabalhadores da categoria receberam o informe de forma imediata e participativa.",
-    author: "Núcleo Sindical Toledo",
+    author: "SINSEP",
     role: "Cliente desde 2020",
   },
   {
