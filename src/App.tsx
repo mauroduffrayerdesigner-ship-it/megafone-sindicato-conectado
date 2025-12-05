@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/useTheme";
+import { usePageTracking } from "@/hooks/usePageTracking";
 import Index from "./pages/Index";
 import Sobre from "./pages/Sobre";
 import Servicos from "./pages/Servicos";
@@ -22,6 +23,12 @@ import IntegrationsPage from "./pages/admin/IntegrationsPage";
 
 const queryClient = new QueryClient();
 
+// Componente wrapper para tracking de páginas
+function PageTracker({ children }: { children: React.ReactNode }) {
+  usePageTracking();
+  return <>{children}</>;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
@@ -29,28 +36,30 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/sobre" element={<Sobre />} />
-            <Route path="/servicos" element={<Servicos />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<BlogPost />} />
-            <Route path="/contato" element={<Contato />} />
-            <Route path="/logarcomodono" element={<AdminLogin />} />
-            
-            {/* Admin Routes */}
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="leads" element={<LeadsPage />} />
-              <Route path="blog" element={<BlogPostsPage />} />
-              <Route path="blog/new" element={<BlogPostEditor />} />
-              <Route path="blog/:id/edit" element={<BlogPostEditor />} />
-              <Route path="newsletter" element={<NewsletterPage />} />
-              <Route path="integrations" element={<IntegrationsPage />} />
-            </Route>
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <PageTracker>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/sobre" element={<Sobre />} />
+              <Route path="/servicos" element={<Servicos />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/contato" element={<Contato />} />
+              <Route path="/logarcomodono" element={<AdminLogin />} />
+              
+              {/* Admin Routes */}
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="leads" element={<LeadsPage />} />
+                <Route path="blog" element={<BlogPostsPage />} />
+                <Route path="blog/new" element={<BlogPostEditor />} />
+                <Route path="blog/:id/edit" element={<BlogPostEditor />} />
+                <Route path="newsletter" element={<NewsletterPage />} />
+                <Route path="integrations" element={<IntegrationsPage />} />
+              </Route>
+              
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </PageTracker>
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
