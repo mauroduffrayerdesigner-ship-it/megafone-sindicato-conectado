@@ -3,7 +3,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Phone, MapPin, Send, MessageCircle, Clock } from "lucide-react";
-import { createLead } from "@/hooks/useLeads";
+import { supabase } from "@/integrations/supabase/client";
 
 const contactInfo = [
   {
@@ -65,14 +65,18 @@ const Contato = () => {
     setIsLoading(true);
 
     try {
-      await createLead({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone || null,
-        organization: formData.organization || null,
-        service: formData.service || null,
-        message: formData.message || null,
+      const { data, error } = await supabase.functions.invoke('create-lead', {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || null,
+          organization: formData.organization || null,
+          service: formData.service || null,
+          message: formData.message || null,
+        }
       });
+
+      if (error) throw error;
 
       toast({
         title: "Mensagem enviada!",
@@ -88,6 +92,7 @@ const Contato = () => {
         message: "",
       });
     } catch (error: any) {
+      console.error('Error submitting form:', error);
       toast({
         title: "Erro ao enviar mensagem",
         description: "Por favor, tente novamente mais tarde.",
