@@ -1,25 +1,44 @@
 import { Layout } from "@/components/layout/Layout";
 import { Link, useParams, Navigate } from "react-router-dom";
-import { Calendar, Clock, ArrowLeft, ArrowRight, Tag, Share2, Facebook, Twitter, Linkedin } from "lucide-react";
+import { Calendar, Clock, ArrowLeft, ArrowRight, Tag, Share2, Facebook, Twitter, Linkedin, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { posts } from "@/data/posts";
+import { useQuery } from "@tanstack/react-query";
+import { getPostBySlug, useBlogPosts } from "@/hooks/useBlogPosts";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
-  const post = posts.find((p) => p.slug === slug);
+  const { posts: allPosts, isLoading: isLoadingAll } = useBlogPosts(true);
+  
+  const { data: post, isLoading: isLoadingPost } = useQuery({
+    queryKey: ["blog_post", slug],
+    queryFn: () => getPostBySlug(slug!),
+    enabled: !!slug,
+  });
+
+  const isLoading = isLoadingPost || isLoadingAll;
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
 
   if (!post) {
     return <Navigate to="/blog" replace />;
   }
 
-  const currentIndex = posts.findIndex((p) => p.slug === slug);
-  const relatedPosts = posts.filter((p) => p.slug !== slug && p.category === post.category).slice(0, 2);
+  const currentIndex = allPosts.findIndex((p) => p.slug === slug);
+  const relatedPosts = allPosts.filter((p) => p.slug !== slug && p.category === post.category).slice(0, 2);
   const otherPosts = relatedPosts.length < 2 
-    ? [...relatedPosts, ...posts.filter((p) => p.slug !== slug && p.category !== post.category).slice(0, 2 - relatedPosts.length)]
+    ? [...relatedPosts, ...allPosts.filter((p) => p.slug !== slug && p.category !== post.category).slice(0, 2 - relatedPosts.length)]
     : relatedPosts;
 
-  const prevPost = currentIndex > 0 ? posts[currentIndex - 1] : null;
-  const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null;
+  const prevPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
+  const nextPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
 
   const shareUrl = window.location.href;
   const shareText = encodeURIComponent(post.title);
@@ -41,18 +60,22 @@ const BlogPost = () => {
           </Link>
           
           <div className="max-w-3xl">
-            <div className="flex items-center gap-4 mb-6">
-              <span className="inline-flex items-center gap-1 text-sm text-primary font-medium bg-primary/10 px-3 py-1 rounded-full">
-                <Tag size={14} />
-                {post.category}
-              </span>
-              <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Clock size={14} />
-                {post.readTime} de leitura
-              </span>
+            <div className="flex items-center gap-4 mb-6 flex-wrap">
+              {post.category && (
+                <span className="inline-flex items-center gap-1 text-sm text-primary font-medium bg-primary/10 px-3 py-1 rounded-full">
+                  <Tag size={14} />
+                  {post.category}
+                </span>
+              )}
+              {post.read_time && (
+                <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <Clock size={14} />
+                  {post.read_time} de leitura
+                </span>
+              )}
               <span className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Calendar size={14} />
-                {new Date(post.date).toLocaleDateString('pt-BR', { 
+                {new Date(post.created_at).toLocaleDateString('pt-BR', { 
                   day: 'numeric', 
                   month: 'long', 
                   year: 'numeric' 
@@ -77,7 +100,7 @@ const BlogPost = () => {
           <div className="max-w-4xl mx-auto">
             <div className="aspect-video rounded-xl overflow-hidden shadow-card">
               <img
-                src={post.image}
+                src={post.image_url || "/placeholder.svg"}
                 alt={post.title}
                 className="w-full h-full object-cover"
               />
@@ -193,7 +216,7 @@ const BlogPost = () => {
                 >
                   <div className="aspect-video overflow-hidden">
                     <img
-                      src={relatedPost.image}
+                      src={relatedPost.image_url || "/placeholder.svg"}
                       alt={relatedPost.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
@@ -201,7 +224,7 @@ const BlogPost = () => {
                   <div className="p-6">
                     <div className="flex items-center gap-4 mb-3">
                       <span className="text-xs text-primary font-medium">{relatedPost.category}</span>
-                      <span className="text-xs text-muted-foreground">{relatedPost.readTime}</span>
+                      <span className="text-xs text-muted-foreground">{relatedPost.read_time}</span>
                     </div>
                     <h3 className="font-display text-lg font-bold group-hover:text-primary transition-colors">
                       {relatedPost.title}
