@@ -13,7 +13,7 @@ const testimonials = [
   },
   {
     quote: "Tínhamos certa dificuldade nas redes sociais, mas desde quando vocês começaram a gerenciar, os/as trabalhadores/as tem acompanhado as ações do nosso núcleo.",
-    author: "Núcleo Sindical",
+    author: "APP TOLEDO",
     role: "Cliente desde 2022",
   },
 ];
