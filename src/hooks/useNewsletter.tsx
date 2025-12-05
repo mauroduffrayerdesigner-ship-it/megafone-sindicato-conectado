@@ -69,12 +69,18 @@ export const useNewsletter = () => {
 };
 
 export const subscribeToNewsletter = async (email: string) => {
-  const { data, error } = await supabase
-    .from("newsletter_subscribers")
-    .insert([{ email }])
-    .select()
-    .single();
+  const { data, error } = await supabase.functions.invoke('subscribe-newsletter', {
+    body: { email }
+  });
   
   if (error) throw error;
-  return data;
+  
+  // Verificar se a resposta contém erro (ex: duplicado)
+  if (data?.error) {
+    const err = new Error(data.message || data.error);
+    (err as any).code = data.error;
+    throw err;
+  }
+  
+  return data.data;
 };
