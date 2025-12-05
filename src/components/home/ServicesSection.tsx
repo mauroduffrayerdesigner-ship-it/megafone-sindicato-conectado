@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Palette, Share2, MessageCircle, Video, Globe, TrendingUp, ArrowRight } from "lucide-react";
+import { Palette, Share2, MessageCircle, Video, Globe, Newspaper, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const services = [
@@ -34,9 +34,9 @@ const services = [
     color: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400",
   },
   {
-    icon: TrendingUp,
-    title: "Estratégia Digital",
-    description: "Elaboração de estratégias para redes sociais e impulsionamento de conteúdo.",
+    icon: Newspaper,
+    title: "Assessoria de Imprensa",
+    description: "Elaboração e distribuição de releases, matérias e kit mídia.",
     color: "bg-pink-500/10 text-pink-600 dark:text-pink-400",
   },
 ];
