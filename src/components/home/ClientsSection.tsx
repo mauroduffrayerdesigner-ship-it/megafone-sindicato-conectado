@@ -1,5 +1,5 @@
 const clients = [
-  { name: "SINDICATO DOS METALÚRGICOS", initials: "SM" },
+  { name: "SINDICATO DOS SERVIDORES DE SÃO JOSÉ DOS PINHAIS", initials: "SS" },
   { name: "SINDICATO DOS BANCÁRIOS", initials: "SB" },
   { name: "SINDPETRO", initials: "SP" },
   { name: "SINDICATO DOS PROFESSORES", initials: "SE" },
