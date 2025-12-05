@@ -3,16 +3,32 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
   Share2, Palette, MessageCircle, Video, Globe, TrendingUp, 
-  Check, ArrowRight, Zap, Users, BarChart3
+  Check, ArrowRight, Zap, Users, BarChart3, Newspaper
 } from "lucide-react";
 
 const services = [
+  {
+    id: "assessoria-imprensa",
+    icon: Newspaper,
+    title: "Assessoria de Imprensa",
+    subtitle: "Relacionamento com a Mídia",
+    description: "Damos voz às pautas do movimento sindical nos veículos de comunicação. Nossa assessoria de imprensa trabalha para garantir que as demandas dos trabalhadores ganhem visibilidade na mídia local e nacional, construindo uma imagem institucional sólida e ampliando o alcance das lutas sindicais junto à opinião pública.",
+    color: "bg-red-500/10 text-red-600 dark:text-red-400",
+    features: [
+      "Elaboração e distribuição de releases para veículos de comunicação",
+      "Produção de matérias e artigos especializados",
+      "Kit mídia completo para coletivas de imprensa",
+      "Relacionamento com jornalistas e formadores de opinião",
+      "Media training para dirigentes sindicais",
+      "Clipping e monitoramento de menções na mídia",
+    ],
+  },
   {
     id: "social-media",
     icon: Share2,
     title: "Gestão de Redes Sociais",
     subtitle: "Social Media Completo",
-    description: "Cuidamos da comunicação digital do sindicato com a base. Nosso trabalho envolve criar conteúdo estratégico, manter presença ativa e engajar trabalhadores.",
+    description: "Transformamos as redes sociais do seu sindicato em ferramentas estratégicas de mobilização e fortalecimento da base. Nosso trabalho vai além de postagens: criamos narrativas que engajam, informam e fortalecem a identidade sindical, garantindo presença ativa onde os trabalhadores estão conectados.",
     color: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
     features: [
       "Criação e/ou reformulação de redes sociais",
@@ -28,7 +44,7 @@ const services = [
     icon: Palette,
     title: "Design Digital e Gráfico",
     subtitle: "Identidade Visual Completa",
-    description: "Criação de materiais que fortalecem a presença visual do sindicato, desde cards para redes sociais até materiais impressos de alta qualidade.",
+    description: "A identidade visual é o cartão de visita do sindicato. Desenvolvemos materiais que transmitem profissionalismo, credibilidade e fortalecem o reconhecimento da marca sindical. Do digital ao impresso, cada peça é pensada para comunicar com impacto e consolidar a presença institucional.",
     color: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
     features: [
       "Criação de logo e identidade visual",
@@ -44,7 +60,7 @@ const services = [
     icon: MessageCircle,
     title: "Disparo em Massa no WhatsApp",
     subtitle: "Comunicação Direta",
-    description: "Envio diário de mensagens com alcance direto à base trabalhadora. Comunicação instantânea para mobilização e informação.",
+    description: "O WhatsApp é o canal com maior taxa de abertura e leitura entre os trabalhadores. Nosso serviço de disparo em massa garante que informações urgentes, convocações para assembleias e campanhas cheguem diretamente ao celular da base, em tempo real e com alcance massivo.",
     color: "bg-green-500/10 text-green-600 dark:text-green-400",
     features: [
       "Envio em massa para até 10 mil contatos",
@@ -60,7 +76,7 @@ const services = [
     icon: Video,
     title: "Produção de Vídeos e Fotografias",
     subtitle: "Conteúdo Audiovisual",
-    description: "Cobertura de atividades, vídeos institucionais e edição profissional para campanhas e comunicação sindical.",
+    description: "O conteúdo audiovisual é o formato mais consumido nas redes sociais. Produzimos vídeos que contam a história do movimento, documentam conquistas e mobilizam através do poder da imagem. Das coberturas de eventos aos vídeos institucionais, registramos e eternizamos a luta sindical.",
     color: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
     features: [
       "Cobertura fotográfica de eventos",
@@ -76,7 +92,7 @@ const services = [
     icon: Globe,
     title: "Criação de Sites",
     subtitle: "Presença Digital Completa",
-    description: "Elaboração, design e desenvolvimento de sites personalizados para atender às necessidades específicas de cada sindicato.",
+    description: "O site é o hub central da comunicação sindical — um espaço próprio onde o sindicato tem autonomia total para publicar notícias, disponibilizar documentos e oferecer serviços aos filiados. Desenvolvemos sites modernos, otimizados para buscadores e com áreas exclusivas para a categoria.",
     color: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400",
     features: [
       "Design personalizado e moderno",
@@ -92,7 +108,7 @@ const services = [
     icon: TrendingUp,
     title: "Estratégia Digital",
     subtitle: "Planejamento e Impulsionamento",
-    description: "Elaboração de estratégias para redes sociais, impulsionamento de conteúdo e planejamento de campanhas digitais.",
+    description: "Comunicação eficiente exige planejamento. Analisamos dados, identificamos oportunidades e traçamos estratégias personalizadas para maximizar o alcance e o engajamento da comunicação sindical. Com inteligência de dados, cada ação é direcionada para gerar resultados concretos.",
     color: "bg-pink-500/10 text-pink-600 dark:text-pink-400",
     features: [
       "Diagnóstico de comunicação digital",
