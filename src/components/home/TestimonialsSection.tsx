@@ -3,7 +3,7 @@ import { Quote } from "lucide-react";
 const testimonials = [
   {
     quote: "Tivemos uma ótima experiência com as soluções da MegaFone, nos ajudaram a melhorar a comunicação com os trabalhadores na base.",
-    author: "Sindicato",
+    author: "Sindarspen",
     role: "Cliente desde 2021",
   },
   {
