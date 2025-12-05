@@ -4,7 +4,7 @@ const testimonials = [
   {
     quote: "Temos uma ótima experiência com as soluções da MegaFone, nos ajudaram a melhorar a comunicação com os trabalhadores na base.",
     author: "Sindarspen",
-    role: "Cliente desde 2021",
+    role: "Cliente desde 2023",
   },
   {
     quote: "A Megafone vem realizado diversas campanhas sindicais, em todas elas os trabalhadores da categoria receberam o informe de forma imediata e participativa.",
