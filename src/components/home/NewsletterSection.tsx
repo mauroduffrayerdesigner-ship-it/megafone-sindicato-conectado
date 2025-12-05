@@ -2,6 +2,7 @@ import { Mail, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { subscribeToNewsletter } from "@/hooks/useNewsletter";
 
 export const NewsletterSection = () => {
   const [email, setEmail] = useState("");
@@ -22,16 +23,32 @@ export const NewsletterSection = () => {
 
     setIsLoading(true);
     
-    // Simulação de envio - pode ser integrado com backend depois
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Inscrição realizada!",
-      description: "Você receberá nossas novidades em breve.",
-    });
-    
-    setEmail("");
-    setIsLoading(false);
+    try {
+      await subscribeToNewsletter(email);
+      
+      toast({
+        title: "Inscrição realizada!",
+        description: "Você receberá nossas novidades em breve.",
+      });
+      
+      setEmail("");
+    } catch (error: any) {
+      if (error.message?.includes("duplicate")) {
+        toast({
+          title: "Email já cadastrado",
+          description: "Este email já está inscrito na nossa newsletter.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro ao inscrever",
+          description: "Por favor, tente novamente mais tarde.",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

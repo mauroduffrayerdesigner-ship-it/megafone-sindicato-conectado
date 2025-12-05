@@ -3,6 +3,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Phone, MapPin, Send, MessageCircle, Clock } from "lucide-react";
+import { createLead } from "@/hooks/useLeads";
 
 const contactInfo = [
   {
@@ -63,23 +64,38 @@ const Contato = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      await createLead({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || null,
+        organization: formData.organization || null,
+        service: formData.service || null,
+        message: formData.message || null,
+      });
 
-    toast({
-      title: "Mensagem enviada!",
-      description: "Entraremos em contato em breve. Obrigado pelo interesse!",
-    });
+      toast({
+        title: "Mensagem enviada!",
+        description: "Entraremos em contato em breve. Obrigado pelo interesse!",
+      });
 
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      organization: "",
-      service: "",
-      message: "",
-    });
-    setIsLoading(false);
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        organization: "",
+        service: "",
+        message: "",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao enviar mensagem",
+        description: "Por favor, tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
