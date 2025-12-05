@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import logoMegafone from "@/assets/logo-megafone.png";
 const navLinks = [{
-  name: "Home",
+  name: "Início",
   path: "/"
 }, {
   name: "Sobre",
