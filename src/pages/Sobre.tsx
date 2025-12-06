@@ -1,5 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
-import { Users, Target, Heart, Award, Linkedin, Instagram } from "lucide-react";
+import { Users, Target, Heart, Award } from "lucide-react";
 
 import wellingtonPhoto from "@/assets/team/wellington-tiago.jpeg";
 import milenaPhoto from "@/assets/team/milena-isabel.jpeg";
@@ -11,29 +11,21 @@ const teamMembers = [
     name: "Wellington Tiago",
     role: "Proprietário e Relações Públicas",
     photo: wellingtonPhoto,
-    linkedin: "#",
-    instagram: "#",
   },
   {
     name: "Milena Isabel",
     role: "Coordenadora de Comunicação",
     photo: milenaPhoto,
-    linkedin: "#",
-    instagram: "#",
   },
   {
     name: "Isabela Veiga",
     role: "Social Media",
     photo: isabelaPhoto,
-    linkedin: "#",
-    instagram: "#",
   },
   {
     name: "Leonardo Costa",
     role: "Design e Fotógrafo",
     photo: leonardoPhoto,
-    linkedin: "#",
-    instagram: "#",
   },
 ];
 
@@ -161,7 +153,7 @@ const Sobre = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {teamMembers.map((member) => (
               <div 
                 key={member.name}
@@ -174,24 +166,6 @@ const Sobre = () => {
                     className="w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="absolute bottom-4 left-4 right-4 flex gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
-                    <a 
-                      href={member.linkedin} 
-                      className="w-10 h-10 bg-primary/90 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Linkedin size={18} className="text-primary-foreground" />
-                    </a>
-                    <a 
-                      href={member.instagram} 
-                      className="w-10 h-10 bg-primary/90 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Instagram size={18} className="text-primary-foreground" />
-                    </a>
-                  </div>
                 </div>
                 <div className="p-6 text-center">
                   <h3 className="font-display text-xl font-bold mb-1">{member.name}</h3>
