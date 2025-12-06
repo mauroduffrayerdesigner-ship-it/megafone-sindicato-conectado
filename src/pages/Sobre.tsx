@@ -1,46 +1,37 @@
 import { Layout } from "@/components/layout/Layout";
 import { Users, Target, Heart, Award, Linkedin, Instagram } from "lucide-react";
 
+import wellingtonPhoto from "@/assets/team/wellington-tiago.jpeg";
+import milenaPhoto from "@/assets/team/milena-isabel.jpeg";
+import isabelaPhoto from "@/assets/team/isabela-veiga.jpeg";
+import leonardoPhoto from "@/assets/team/leonardo-costa.jpeg";
+
 const teamMembers = [
   {
-    name: "Ana Carolina Silva",
-    role: "Diretora de Comunicação",
-    photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face",
+    name: "Wellington Tiago",
+    role: "Proprietário e Relações Públicas",
+    photo: wellingtonPhoto,
     linkedin: "#",
     instagram: "#",
   },
   {
-    name: "Rafael Oliveira",
-    role: "Editor-Chefe",
-    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+    name: "Milena Isabel",
+    role: "Coordenadora de Comunicação",
+    photo: milenaPhoto,
     linkedin: "#",
     instagram: "#",
   },
   {
-    name: "Juliana Santos",
-    role: "Social Media Manager",
-    photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+    name: "Isabela Veiga",
+    role: "Social Media",
+    photo: isabelaPhoto,
     linkedin: "#",
     instagram: "#",
   },
   {
-    name: "Carlos Mendes",
-    role: "Designer Gráfico",
-    photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-    linkedin: "#",
-    instagram: "#",
-  },
-  {
-    name: "Fernanda Lima",
-    role: "Videomaker",
-    photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=face",
-    linkedin: "#",
-    instagram: "#",
-  },
-  {
-    name: "Bruno Costa",
-    role: "Fotógrafo",
-    photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face",
+    name: "Leonardo Costa",
+    role: "Design e Fotógrafo",
+    photo: leonardoPhoto,
     linkedin: "#",
     instagram: "#",
   },
