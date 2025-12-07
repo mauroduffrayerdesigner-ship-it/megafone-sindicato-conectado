@@ -1,6 +1,22 @@
 import { useEffect, useState } from 'react';
 import { useIntegrations } from '@/hooks/useIntegrations';
 
+interface FacebookPixelFunction {
+  (...args: unknown[]): void;
+  push: FacebookPixelFunction;
+  loaded: boolean;
+  version: string;
+  queue: unknown[][];
+  callMethod?: (...args: unknown[]) => void;
+}
+
+declare global {
+  interface Window {
+    fbq: FacebookPixelFunction | undefined;
+    _fbq: FacebookPixelFunction | undefined;
+  }
+}
+
 interface TrackingConfig {
   gtmContainerId?: string;
   ga4MeasurementId?: string;
@@ -131,25 +147,54 @@ export const TrackingScripts = () => {
   useEffect(() => {
     if (!config.metaPixelId || scriptsLoaded.meta) return;
 
-    // Inicializar fbq
-    const fbqScript = `
-      !function(f,b,e,v,n,t,s)
-      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)}(window, document,'script',
-      'https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', '${config.metaPixelId}');
-      fbq('track', 'PageView');
-    `;
+    // Verificar se fbq já existe
+    if (typeof window.fbq === 'function') {
+      console.log('[Tracking] Meta Pixel já inicializado');
+      setScriptsLoaded(prev => ({ ...prev, meta: true }));
+      return;
+    }
 
+    console.log('[Tracking] Inicializando Meta Pixel:', config.metaPixelId);
+
+    // Inicializar fbq manualmente (método correto que executa)
+    const fbqQueue: unknown[][] = [];
+    const fbq = function(...args: unknown[]) {
+      fbqQueue.push(args);
+    } as FacebookPixelFunction;
+    
+    fbq.push = fbq;
+    fbq.loaded = true;
+    fbq.version = '2.0';
+    fbq.queue = fbqQueue;
+    
+    window.fbq = fbq;
+    window._fbq = fbq;
+    
+    window.fbq = fbq;
+    window._fbq = fbq;
+
+    // Carregar script externo do Facebook
     const script = document.createElement('script');
-    script.innerHTML = fbqScript;
+    script.async = true;
+    script.src = 'https://connect.facebook.net/en_US/fbevents.js';
+    
+    script.onload = () => {
+      // Inicializar o pixel após o script carregar
+      if (window.fbq) {
+        window.fbq('init', config.metaPixelId);
+        window.fbq('track', 'PageView');
+        console.log('[Tracking] Meta Pixel carregado e PageView disparado:', config.metaPixelId);
+      }
+      setScriptsLoaded(prev => ({ ...prev, meta: true }));
+    };
+    
+    script.onerror = () => {
+      console.error('[Tracking] Erro ao carregar script do Meta Pixel');
+    };
+
     document.head.appendChild(script);
 
-    // Add noscript fallback
+    // Adicionar noscript fallback
     const noscript = document.createElement('noscript');
     const img = document.createElement('img');
     img.height = 1;
@@ -158,9 +203,6 @@ export const TrackingScripts = () => {
     img.src = `https://www.facebook.com/tr?id=${config.metaPixelId}&ev=PageView&noscript=1`;
     noscript.appendChild(img);
     document.head.appendChild(noscript);
-
-    console.log('[Tracking] Meta Pixel loaded:', config.metaPixelId);
-    setScriptsLoaded(prev => ({ ...prev, meta: true }));
   }, [config.metaPixelId, scriptsLoaded.meta]);
 
   // Este componente não renderiza nada visualmente
