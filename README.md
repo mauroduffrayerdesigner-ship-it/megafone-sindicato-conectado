@@ -1,73 +1,656 @@
-# Welcome to your Lovable project
+<div align="center">
 
-## Project info
+# 📣 MegaFone - Comunicação Estratégica
 
-**URL**: https://lovable.dev/projects/f24b09b4-2f9e-40d4-a80c-a6006c68c660
+![React](https://img.shields.io/badge/React-18.3.1-61DAFB?style=for-the-badge&logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-Backend-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![License](https://img.shields.io/badge/Licença-MIT-green?style=for-the-badge)
 
-## How can I edit this code?
+**Plataforma completa de comunicação estratégica para sindicatos e associações**
 
-There are several ways of editing your application.
+[🌐 Ver Demo](https://lovable.dev/projects/f24b09b4-2f9e-40d4-a80c-a6006c68c660) • [📖 Documentação](#-índice) • [🚀 Deploy](#-manual-de-deploy)
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f24b09b4-2f9e-40d4-a80c-a6006c68c660) and start prompting.
+<img src="src/assets/logo-megafone.png" alt="MegaFone Logo" width="200"/>
 
-Changes made via Lovable will be committed automatically to this repo.
+</div>
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 📑 Índice
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- [📋 Visão Geral](#-visão-geral)
+- [✨ Funcionalidades](#-funcionalidades)
+- [🛠️ Stack Tecnológica](#️-stack-tecnológica)
+- [📁 Arquitetura do Projeto](#-arquitetura-do-projeto)
+- [⚡ Edge Functions](#-edge-functions)
+- [🗄️ Banco de Dados](#️-banco-de-dados)
+- [🔐 Segurança](#-segurança)
+- [🚀 Manual de Deploy](#-manual-de-deploy)
+- [🔧 Variáveis de Ambiente](#-variáveis-de-ambiente)
+- [📜 Scripts Disponíveis](#-scripts-disponíveis)
+- [🤝 Contribuição](#-contribuição)
+- [📄 Licença](#-licença)
+- [📞 Contato](#-contato)
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 📋 Visão Geral
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+O **MegaFone** é uma plataforma web moderna e completa desenvolvida para agências de comunicação estratégica, com foco em sindicatos, associações e entidades de classe. O sistema oferece um site institucional responsivo, painel administrativo robusto, sistema de blog, gestão de leads e newsletter integrada.
 
-# Step 3: Install the necessary dependencies.
-npm i
+### 🎯 Principais Características
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+- 🏠 **Site Institucional** - Landing page profissional com design moderno
+- 📊 **Painel Administrativo** - Gestão completa de conteúdo e leads
+- 📝 **Blog Integrado** - Sistema de publicação com categorias e SEO
+- 📧 **Newsletter** - Captação e gestão de assinantes
+- 📈 **Analytics** - Rastreamento de pageviews e comportamento
+- 🔒 **Autenticação Segura** - Sistema de login com roles (admin/editor/user)
+
+---
+
+## ✨ Funcionalidades
+
+### 🌐 Site Institucional
+
+| Página | Descrição |
+|--------|-----------|
+| **Home** | Landing page com hero, serviços, clientes, depoimentos e CTA |
+| **Sobre** | História da empresa, equipe e valores |
+| **Serviços** | Catálogo detalhado de serviços oferecidos |
+| **Blog** | Artigos e notícias com sistema de categorias |
+| **Contato** | Formulário de contato integrado com captura de leads |
+
+### 📊 Painel Administrativo
+
+```
+/admin
+├── /dashboard      → Métricas e visão geral
+├── /leads          → Gestão de leads capturados
+├── /posts          → Editor de posts do blog
+├── /newsletter     → Gestão de assinantes
+└── /integracoes    → Configuração de integrações
+```
+
+| Módulo | Funcionalidades |
+|--------|-----------------|
+| **Dashboard** | Estatísticas de leads, newsletter, pageviews e posts |
+| **Leads** | Lista, filtros, status, notas e exportação |
+| **Blog Posts** | CRUD completo, editor rich-text, categorias, publicação |
+| **Newsletter** | Lista de assinantes, status ativo/inativo, remoção |
+| **Integrações** | Configuração de serviços externos |
+
+### 🔐 Sistema de Autenticação
+
+- Login seguro com email/senha via Supabase Auth
+- Sistema de roles: `admin`, `editor`, `user`
+- Proteção de rotas administrativas
+- Verificação de permissões via RPC
+
+### 📈 Analytics e Tracking
+
+- Rastreamento automático de pageviews
+- Identificação de visitantes únicos
+- Captura de referrer e user-agent
+- Métricas de sessão
+
+---
+
+## 🛠️ Stack Tecnológica
+
+### Frontend
+
+| Tecnologia | Versão | Uso |
+|------------|--------|-----|
+| ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black) | 18.3.1 | UI Library |
+| ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript&logoColor=white) | 5.x | Type Safety |
+| ![Vite](https://img.shields.io/badge/-Vite-646CFF?logo=vite&logoColor=white) | 5.x | Build Tool |
+| ![TailwindCSS](https://img.shields.io/badge/-Tailwind-06B6D4?logo=tailwindcss&logoColor=white) | 3.4 | Styling |
+| ![React Router](https://img.shields.io/badge/-React_Router-CA4245?logo=reactrouter&logoColor=white) | 6.x | Routing |
+| ![TanStack Query](https://img.shields.io/badge/-TanStack_Query-FF4154?logo=reactquery&logoColor=white) | 5.x | Data Fetching |
+
+### UI Components
+
+| Biblioteca | Uso |
+|------------|-----|
+| **shadcn/ui** | Componentes base acessíveis |
+| **Radix UI** | Primitivos de UI |
+| **Lucide Icons** | Ícones SVG |
+| **Sonner** | Notificações toast |
+| **Recharts** | Gráficos e visualizações |
+
+### Backend (Supabase)
+
+| Serviço | Uso |
+|---------|-----|
+| **PostgreSQL** | Banco de dados relacional |
+| **Auth** | Autenticação e autorização |
+| **Edge Functions** | APIs serverless (Deno) |
+| **RLS** | Row Level Security |
+| **Realtime** | Atualizações em tempo real |
+
+---
+
+## 📁 Arquitetura do Projeto
+
+```
+megafone/
+├── 📂 public/                    # Arquivos estáticos
+│   ├── favicon.ico
+│   ├── placeholder.svg
+│   └── robots.txt
+│
+├── 📂 src/
+│   ├── 📂 assets/               # Imagens e recursos
+│   │   ├── 📂 clients/          # Logos de clientes
+│   │   └── 📂 team/             # Fotos da equipe
+│   │
+│   ├── 📂 components/
+│   │   ├── 📂 home/             # Componentes da home
+│   │   │   ├── HeroSection.tsx
+│   │   │   ├── ServicesSection.tsx
+│   │   │   ├── ClientsSection.tsx
+│   │   │   ├── TestimonialsSection.tsx
+│   │   │   ├── BlogSection.tsx
+│   │   │   ├── CTASection.tsx
+│   │   │   └── NewsletterSection.tsx
+│   │   │
+│   │   ├── 📂 layout/           # Layout global
+│   │   │   ├── Header.tsx
+│   │   │   ├── Footer.tsx
+│   │   │   └── Layout.tsx
+│   │   │
+│   │   └── 📂 ui/               # shadcn/ui components
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── dialog.tsx
+│   │       └── ... (50+ componentes)
+│   │
+│   ├── 📂 hooks/                # Custom hooks
+│   │   ├── useAdmin.tsx         # Autenticação admin
+│   │   ├── useAnalytics.tsx     # Métricas
+│   │   ├── useBlogPosts.tsx     # CRUD de posts
+│   │   ├── useIntegrations.tsx  # Gestão de integrações
+│   │   ├── useLeads.tsx         # Gestão de leads
+│   │   ├── useNewsletter.tsx    # Newsletter
+│   │   └── useTheme.tsx         # Dark/Light mode
+│   │
+│   ├── 📂 integrations/
+│   │   └── 📂 supabase/
+│   │       ├── client.ts        # Cliente Supabase
+│   │       └── types.ts         # Tipos gerados
+│   │
+│   ├── 📂 pages/
+│   │   ├── Index.tsx            # Home
+│   │   ├── Sobre.tsx            # Sobre nós
+│   │   ├── Servicos.tsx         # Serviços
+│   │   ├── Blog.tsx             # Lista de posts
+│   │   ├── BlogPost.tsx         # Post individual
+│   │   ├── Contato.tsx          # Formulário de contato
+│   │   ├── PoliticaPrivacidade.tsx
+│   │   ├── NotFound.tsx
+│   │   │
+│   │   └── 📂 admin/            # Área administrativa
+│   │       ├── AdminLogin.tsx
+│   │       ├── AdminLayout.tsx
+│   │       ├── AdminDashboard.tsx
+│   │       ├── LeadsPage.tsx
+│   │       ├── BlogPostsPage.tsx
+│   │       ├── BlogPostEditor.tsx
+│   │       ├── NewsletterPage.tsx
+│   │       └── IntegrationsPage.tsx
+│   │
+│   ├── 📂 lib/
+│   │   └── utils.ts             # Utilitários (cn, etc.)
+│   │
+│   ├── App.tsx                  # Rotas principais
+│   ├── main.tsx                 # Entry point
+│   └── index.css                # Estilos globais + Design System
+│
+├── 📂 supabase/
+│   ├── config.toml              # Configuração do Supabase
+│   │
+│   ├── 📂 functions/            # Edge Functions
+│   │   ├── 📂 create-lead/
+│   │   │   └── index.ts         # Criação de leads
+│   │   ├── 📂 subscribe-newsletter/
+│   │   │   └── index.ts         # Inscrição newsletter
+│   │   └── 📂 track-page-view/
+│   │       └── index.ts         # Analytics
+│   │
+│   └── 📂 migrations/           # Migrações SQL
+│
+├── .env                         # Variáveis de ambiente
+├── tailwind.config.ts           # Configuração Tailwind
+├── vite.config.ts               # Configuração Vite
+├── tsconfig.json                # Configuração TypeScript
+└── package.json                 # Dependências
+```
+
+---
+
+## ⚡ Edge Functions
+
+O projeto utiliza **Supabase Edge Functions** (Deno) para lógica serverless:
+
+### `create-lead`
+
+Processa e valida novos leads do formulário de contato.
+
+```typescript
+// Endpoint: POST /functions/v1/create-lead
+{
+  "name": "string (obrigatório, 2-100 chars)",
+  "email": "string (obrigatório, email válido)",
+  "phone": "string (opcional, formato brasileiro)",
+  "organization": "string (opcional)",
+  "service": "string (opcional)",
+  "message": "string (opcional, max 5000 chars)"
+}
+```
+
+**Recursos de Segurança:**
+- ✅ Validação de todos os campos
+- ✅ Sanitização de inputs (XSS prevention)
+- ✅ Rate limiting: 5 req/min por IP
+- ✅ Validação de email com regex
+- ✅ Limite de tamanho de payload
+
+---
+
+### `subscribe-newsletter`
+
+Gerencia inscrições na newsletter.
+
+```typescript
+// Endpoint: POST /functions/v1/subscribe-newsletter
+{
+  "email": "string (obrigatório)"
+}
+```
+
+**Recursos:**
+- ✅ Validação de email
+- ✅ Prevenção de duplicatas
+- ✅ Rate limiting: 3 req/min por IP
+
+---
+
+### `track-page-view`
+
+Registra visualizações de página para analytics.
+
+```typescript
+// Endpoint: POST /functions/v1/track-page-view
+{
+  "path": "string",
+  "referrer": "string (opcional)",
+  "visitor_id": "string (opcional)",
+  "session_id": "string (opcional)"
+}
+```
+
+**Recursos:**
+- ✅ Captura de user-agent
+- ✅ Rate limiting: 60 req/min por IP
+
+---
+
+## 🗄️ Banco de Dados
+
+### Diagrama de Tabelas
+
+```
+┌─────────────────────┐     ┌─────────────────────┐
+│      blog_posts     │     │        leads        │
+├─────────────────────┤     ├─────────────────────┤
+│ id (uuid, PK)       │     │ id (uuid, PK)       │
+│ slug (text, unique) │     │ name (text)         │
+│ title (text)        │     │ email (text)        │
+│ content (text)      │     │ phone (text)        │
+│ excerpt (text)      │     │ organization (text) │
+│ image_url (text)    │     │ service (text)      │
+│ category (text)     │     │ message (text)      │
+│ author_id (uuid)    │     │ status (text)       │
+│ published (bool)    │     │ notes (text)        │
+│ read_time (text)    │     │ created_at          │
+│ created_at          │     │ updated_at          │
+│ updated_at          │     └─────────────────────┘
+└─────────────────────┘
+
+┌─────────────────────┐     ┌─────────────────────┐
+│newsletter_subscribers│    │     page_views      │
+├─────────────────────┤     ├─────────────────────┤
+│ id (uuid, PK)       │     │ id (uuid, PK)       │
+│ email (text, unique)│     │ path (text)         │
+│ active (bool)       │     │ referrer (text)     │
+│ subscribed_at       │     │ visitor_id (text)   │
+│ unsubscribed_at     │     │ session_id (text)   │
+└─────────────────────┘     │ user_agent (text)   │
+                            │ created_at          │
+┌─────────────────────┐     └─────────────────────┘
+│     user_roles      │
+├─────────────────────┤     ┌─────────────────────┐
+│ id (uuid, PK)       │     │    integrations     │
+│ user_id (uuid)      │     ├─────────────────────┤
+│ role (app_role)     │     │ id (uuid, PK)       │
+│ created_at          │     │ name (text)         │
+└─────────────────────┘     │ type (text)         │
+                            │ config (jsonb)      │
+app_role ENUM:              │ active (bool)       │
+- admin                     │ created_at          │
+- editor                    │ updated_at          │
+- user                      └─────────────────────┘
+```
+
+### Políticas RLS (Row Level Security)
+
+Todas as tabelas possuem **RLS habilitado** com políticas específicas:
+
+| Tabela | SELECT | INSERT | UPDATE | DELETE |
+|--------|--------|--------|--------|--------|
+| `blog_posts` | Public (published) | Admin only | Admin only | Admin only |
+| `leads` | Admin only | Via Edge Function | Admin only | Admin only |
+| `newsletter_subscribers` | Admin only | Via Edge Function | Admin only | Admin only |
+| `page_views` | Admin only | Via Edge Function | - | - |
+| `integrations` | Admin only | Admin only | Admin only | Admin only |
+| `user_roles` | Own role only | - | - | - |
+
+---
+
+## 🔐 Segurança
+
+O projeto implementa múltiplas camadas de segurança:
+
+### ✅ Implementado
+
+| Camada | Recurso |
+|--------|---------|
+| **Autenticação** | Supabase Auth com JWT |
+| **Autorização** | Sistema de roles (admin/editor/user) |
+| **RLS** | Políticas em todas as tabelas |
+| **Input Validation** | Validação server-side nas Edge Functions |
+| **Rate Limiting** | Proteção contra abuse em todas as APIs públicas |
+| **Sanitização** | Prevenção de XSS nos inputs |
+| **CORS** | Headers configurados corretamente |
+
+### 🔧 Recomendações Adicionais
+
+1. **Habilitar Leaked Password Protection** no Supabase:
+   - Acesse: Supabase Dashboard → Authentication → Settings
+   - Ative a proteção contra senhas vazadas
+
+2. **Sanitização de HTML no Blog**:
+   - Usar biblioteca como `DOMPurify` para renderizar conteúdo do blog
+
+---
+
+## 🚀 Manual de Deploy
+
+### 📋 Pré-requisitos
+
+- **Node.js** 18.x ou superior
+- **npm** 9.x ou superior (ou pnpm/yarn)
+- **Conta Supabase** (para o banco de dados)
+- **Git** (para controle de versão)
+
+### 🔧 Configuração do Ambiente Local
+
+#### 1. Clone o Repositório
+
+```bash
+git clone https://github.com/seu-usuario/megafone.git
+cd megafone
+```
+
+#### 2. Instale as Dependências
+
+```bash
+npm install
+```
+
+#### 3. Configure as Variáveis de Ambiente
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+VITE_SUPABASE_PROJECT_ID="seu_project_id"
+VITE_SUPABASE_PUBLISHABLE_KEY="sua_anon_key"
+VITE_SUPABASE_URL="https://seu_project_id.supabase.co"
+```
+
+#### 4. Inicie o Servidor de Desenvolvimento
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+O site estará disponível em `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+### 🗄️ Configuração do Supabase
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+#### 1. Crie um Novo Projeto
 
-## What technologies are used for this project?
+1. Acesse [supabase.com](https://supabase.com) e faça login
+2. Clique em "New Project"
+3. Escolha organização, nome e senha do banco
+4. Aguarde a criação (2-3 minutos)
 
-This project is built with:
+#### 2. Execute as Migrações
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+No dashboard do Supabase, acesse **SQL Editor** e execute os scripts de migração localizados em `supabase/migrations/` na ordem cronológica.
 
-## How can I deploy this project?
+Ou use a CLI do Supabase:
 
-Simply open [Lovable](https://lovable.dev/projects/f24b09b4-2f9e-40d4-a80c-a6006c68c660) and click on Share -> Publish.
+```bash
+# Instale a CLI
+npm install -g supabase
 
-## Can I connect a custom domain to my Lovable project?
+# Faça login
+supabase login
 
-Yes, you can!
+# Vincule ao projeto
+supabase link --project-ref seu_project_id
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+# Execute as migrações
+supabase db push
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+#### 3. Deploy das Edge Functions
+
+```bash
+# Deploy de todas as funções
+supabase functions deploy create-lead
+supabase functions deploy subscribe-newsletter
+supabase functions deploy track-page-view
+```
+
+#### 4. Configure a Autenticação
+
+1. Acesse **Authentication → Settings**
+2. Configure os provedores desejados (Email, Google, etc.)
+3. Defina as URLs de redirecionamento
+
+#### 5. Crie um Usuário Admin
+
+1. Acesse **Authentication → Users**
+2. Clique em "Add User" → "Create new user"
+3. Insira email e senha
+4. No **SQL Editor**, adicione a role de admin:
+
+```sql
+INSERT INTO public.user_roles (user_id, role)
+VALUES ('uuid-do-usuario-criado', 'admin');
+```
+
+---
+
+### 🌐 Deploy em Produção
+
+#### Opção 1: Via Lovable (Recomendado)
+
+1. Abra o projeto no [Lovable](https://lovable.dev)
+2. Clique em **Share → Publish**
+3. Pronto! Seu site estará online em um subdomínio `.lovable.app`
+4. Opcionalmente, conecte um domínio personalizado
+
+#### Opção 2: Vercel
+
+```bash
+# Instale a CLI da Vercel
+npm install -g vercel
+
+# Deploy
+vercel
+
+# Siga as instruções e configure as variáveis de ambiente
+```
+
+#### Opção 3: Netlify
+
+```bash
+# Build do projeto
+npm run build
+
+# O diretório 'dist' pode ser deployado no Netlify
+# Via CLI ou arrastar para o dashboard
+```
+
+#### Opção 4: Docker (Self-Hosting)
+
+```dockerfile
+# Dockerfile
+FROM node:18-alpine as builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+```bash
+# Build e run
+docker build -t megafone .
+docker run -p 80:80 megafone
+```
+
+---
+
+## 🔧 Variáveis de Ambiente
+
+| Variável | Descrição | Obrigatório |
+|----------|-----------|-------------|
+| `VITE_SUPABASE_PROJECT_ID` | ID do projeto Supabase | ✅ |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Chave anônima (anon key) do Supabase | ✅ |
+| `VITE_SUPABASE_URL` | URL do projeto Supabase | ✅ |
+
+> **Nota:** Variáveis com prefixo `VITE_` são expostas ao cliente. Nunca use para secrets sensíveis.
+
+---
+
+## 📜 Scripts Disponíveis
+
+| Comando | Descrição |
+|---------|-----------|
+| `npm run dev` | Inicia servidor de desenvolvimento (porta 8080) |
+| `npm run build` | Gera build de produção em `dist/` |
+| `npm run preview` | Preview do build de produção |
+| `npm run lint` | Executa ESLint para verificar código |
+
+---
+
+## 🤝 Contribuição
+
+Contribuições são bem-vindas! Siga os passos:
+
+1. **Fork** o repositório
+2. Crie uma **branch** para sua feature: `git checkout -b feature/nova-feature`
+3. **Commit** suas mudanças: `git commit -m 'feat: adiciona nova feature'`
+4. **Push** para a branch: `git push origin feature/nova-feature`
+5. Abra um **Pull Request**
+
+### Convenções de Commit
+
+Usamos [Conventional Commits](https://www.conventionalcommits.org/):
+
+- `feat:` Nova funcionalidade
+- `fix:` Correção de bug
+- `docs:` Documentação
+- `style:` Formatação (sem mudança de código)
+- `refactor:` Refatoração
+- `test:` Testes
+- `chore:` Manutenção
+
+---
+
+## 📄 Licença
+
+Este projeto está sob a licença **MIT**. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+```
+MIT License
+
+Copyright (c) 2024 MegaFone Comunicação
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+```
+
+---
+
+## 📞 Contato
+
+<div align="center">
+
+**MegaFone Comunicação Estratégica**
+
+[![Website](https://img.shields.io/badge/Website-megafone.com.br-FF6B35?style=for-the-badge&logo=google-chrome&logoColor=white)](https://megafone.com.br)
+[![Email](https://img.shields.io/badge/Email-contato@megafone.com.br-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:contato@megafone.com.br)
+[![Instagram](https://img.shields.io/badge/Instagram-@megafone-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://instagram.com/megafone)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-MegaFone-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/company/megafone)
+
+---
+
+### 👥 Equipe
+
+| | Nome | Cargo |
+|---|------|-------|
+| <img src="src/assets/team/wellington-tiago.jpeg" width="50" style="border-radius:50%"/> | **Wellington Tiago** | Diretor de Comunicação |
+| <img src="src/assets/team/leonardo-costa.jpeg" width="50" style="border-radius:50%"/> | **Leonardo Costa** | Diretor de Criação |
+| <img src="src/assets/team/milena-isabel.jpeg" width="50" style="border-radius:50%"/> | **Milena Isabel** | Gestora de Projetos |
+| <img src="src/assets/team/isabela-veiga.jpeg" width="50" style="border-radius:50%"/> | **Isabela Veiga** | Social Media |
+
+</div>
+
+---
+
+<div align="center">
+
+**Feito com ❤️ pela equipe MegaFone**
+
+*Transformando comunicação em resultados desde 2020*
+
+</div>
