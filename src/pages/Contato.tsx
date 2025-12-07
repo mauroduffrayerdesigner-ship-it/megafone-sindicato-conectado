@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Phone, MapPin, Send, MessageCircle, Clock } from "lucide-react";
+import { Mail, Phone, Send, MessageCircle, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useConversionTracking } from "@/hooks/useConversionTracking";
 
 const contactInfo = [
   {
@@ -46,6 +47,8 @@ const services = [
 const Contato = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [formStarted, setFormStarted] = useState(false);
+  const { trackLeadSubmitted, trackFormStart, trackWhatsAppClick, trackPhoneClick, trackEmailClick } = useConversionTracking();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -58,6 +61,12 @@ const Contato = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // Track form start on first interaction
+    if (!formStarted && value) {
+      setFormStarted(true);
+      trackFormStart('formulario_contato');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -78,6 +87,13 @@ const Contato = () => {
 
       if (error) throw error;
 
+      // Track conversion event
+      trackLeadSubmitted({
+        service: formData.service,
+        organization: formData.organization,
+        email: formData.email,
+      });
+
       toast({
         title: "Mensagem enviada!",
         description: "Entraremos em contato em breve. Obrigado pelo interesse!",
@@ -91,6 +107,7 @@ const Contato = () => {
         service: "",
         message: "",
       });
+      setFormStarted(false);
     } catch (error: any) {
       console.error('Error submitting form:', error);
       toast({
@@ -151,6 +168,11 @@ const Contato = () => {
                           target={info.href.startsWith("http") ? "_blank" : undefined}
                           rel={info.href.startsWith("http") ? "noopener noreferrer" : undefined}
                           className="font-medium text-foreground hover:text-primary transition-colors"
+                          onClick={() => {
+                            if (info.label === 'WhatsApp') trackWhatsAppClick();
+                            else if (info.label === 'Telefone') trackPhoneClick();
+                            else if (info.label === 'E-mail') trackEmailClick();
+                          }}
                         >
                           {info.value}
                         </a>
@@ -169,7 +191,12 @@ const Contato = () => {
                   Prefere um atendimento mais rápido? Fale conosco pelo WhatsApp!
                 </p>
                 <Button variant="hero" className="w-full" asChild>
-                  <a href="https://wa.me/5541998504505" target="_blank" rel="noopener noreferrer">
+                  <a 
+                    href="https://wa.me/5541998504505" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    onClick={() => trackWhatsAppClick()}
+                  >
                     <MessageCircle size={18} />
                     Iniciar Conversa
                   </a>

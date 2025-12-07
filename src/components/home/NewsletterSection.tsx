@@ -3,11 +3,13 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { subscribeToNewsletter } from "@/hooks/useNewsletter";
+import { useConversionTracking } from "@/hooks/useConversionTracking";
 
 export const NewsletterSection = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { trackNewsletterSignup } = useConversionTracking();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +27,9 @@ export const NewsletterSection = () => {
     
     try {
       await subscribeToNewsletter(email);
+      
+      // Track conversion event
+      trackNewsletterSignup(email);
       
       toast({
         title: "Inscrição realizada!",
