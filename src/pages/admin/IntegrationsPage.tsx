@@ -12,6 +12,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Facebook, 
@@ -22,17 +27,37 @@ import {
   Settings,
   Trash2,
   Check,
-  CircleDashed
+  CircleDashed,
+  HelpCircle
 } from "lucide-react";
+import { ConversionEventsCard } from "@/components/admin/ConversionEventsCard";
 
-const integrationTypes = [
+interface IntegrationField {
+  key: string;
+  label: string;
+  placeholder: string;
+  help?: string;
+}
+
+interface IntegrationType {
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ElementType;
+  type: string;
+  fields: IntegrationField[];
+}
+
+const integrationTypes: IntegrationType[] = [
   {
     id: "meta_pixel",
     name: "Meta Pixel",
     description: "Rastreamento de conversões do Facebook/Instagram",
     icon: Facebook,
     type: "tracking",
-    fields: [{ key: "pixel_id", label: "Pixel ID", placeholder: "123456789" }],
+    fields: [
+      { key: "pixel_id", label: "Pixel ID", placeholder: "123456789", help: "Encontre em: Meta Events Manager > Data Sources > Your Pixel" },
+    ],
   },
   {
     id: "google_analytics",
@@ -40,7 +65,9 @@ const integrationTypes = [
     description: "Análise de tráfego e comportamento",
     icon: BarChart3,
     type: "tracking",
-    fields: [{ key: "measurement_id", label: "Measurement ID", placeholder: "G-XXXXXXXXXX" }],
+    fields: [
+      { key: "measurement_id", label: "Measurement ID", placeholder: "G-XXXXXXXXXX", help: "Encontre em: GA4 > Admin > Data Streams > Web" },
+    ],
   },
   {
     id: "google_tag_manager",
@@ -48,7 +75,9 @@ const integrationTypes = [
     description: "Gerenciamento centralizado de tags",
     icon: Tag,
     type: "tracking",
-    fields: [{ key: "container_id", label: "Container ID", placeholder: "GTM-XXXXXXX" }],
+    fields: [
+      { key: "container_id", label: "Container ID", placeholder: "GTM-XXXXXXX", help: "Encontre em: GTM > Container ID (canto superior direito)" },
+    ],
   },
   {
     id: "webhook",
@@ -57,8 +86,8 @@ const integrationTypes = [
     icon: Webhook,
     type: "webhook",
     fields: [
-      { key: "url", label: "URL do Webhook", placeholder: "https://..." },
-      { key: "events", label: "Eventos (separados por vírgula)", placeholder: "lead, newsletter" },
+      { key: "url", label: "URL do Webhook", placeholder: "https://...", help: "URL que receberá os dados via POST" },
+      { key: "events", label: "Eventos (separados por vírgula)", placeholder: "lead_submitted, newsletter_signup", help: "Eventos: lead_submitted, newsletter_signup, page_view" },
     ],
   },
 ];
@@ -66,14 +95,13 @@ const integrationTypes = [
 export default function IntegrationsPage() {
   const { integrations, isLoading, createIntegration, updateIntegration, deleteIntegration } = useIntegrations();
   const { toast } = useToast();
-  const [selectedType, setSelectedType] = useState<typeof integrationTypes[0] | null>(null);
+  const [selectedType, setSelectedType] = useState<IntegrationType | null>(null);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleSave = async () => {
     if (!selectedType) return;
 
-    // Validar se pelo menos um campo foi preenchido
     const hasValues = selectedType.fields.some(field => formData[field.key]?.trim());
     if (!hasValues) {
       toast({ title: "Preencha pelo menos um campo", variant: "destructive" });
@@ -133,14 +161,13 @@ export default function IntegrationsPage() {
     }
   };
 
-  const openConfig = (type: typeof integrationTypes[0]) => {
+  const openConfig = (type: IntegrationType) => {
     const existing = integrations.find((i) => i.name === type.id);
     setSelectedType(type);
     setFormData(existing?.config as Record<string, string> || {});
     setIsDialogOpen(true);
   };
 
-  // Verifica se a integração está configurada (tem valores reais nos campos)
   const isIntegrationConfigured = (typeId: string) => {
     const integration = integrations.find((i) => i.name === typeId);
     if (!integration) return false;
@@ -148,7 +175,6 @@ export default function IntegrationsPage() {
     const config = integration.config as Record<string, string> | null;
     if (!config) return false;
     
-    // Verificar se pelo menos um campo tem valor
     const type = integrationTypes.find(t => t.id === typeId);
     if (!type) return false;
     
@@ -198,7 +224,6 @@ export default function IntegrationsPage() {
                     isConfigured ? 'border-green-500/30 bg-green-500/5' : 'border-border'
                   }`}
                 >
-                  {/* Status indicator */}
                   <div className={`absolute top-0 left-0 right-0 h-1 ${
                     isConfigured ? 'bg-green-500' : 'bg-muted'
                   }`} />
@@ -224,7 +249,6 @@ export default function IntegrationsPage() {
                   <CardContent className="pt-0">
                     {isConfigured && integration ? (
                       <div className="space-y-4">
-                        {/* Status badge */}
                         <div className="flex items-center gap-2 px-3 py-2 bg-green-500/10 rounded-lg">
                           <Check className="w-4 h-4 text-green-600" />
                           <span className="text-sm font-medium text-green-700 dark:text-green-400">
@@ -239,7 +263,6 @@ export default function IntegrationsPage() {
                           </span>
                         </div>
                         
-                        {/* Actions */}
                         <div className="flex items-center gap-2">
                           <Switch
                             checked={integration.active}
@@ -261,7 +284,6 @@ export default function IntegrationsPage() {
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        {/* Not configured status */}
                         <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg">
                           <CircleDashed className="w-4 h-4 text-muted-foreground" />
                           <span className="text-sm text-muted-foreground">
@@ -349,10 +371,10 @@ export default function IntegrationsPage() {
                       
                       <div className="flex-1 min-w-0">
                         <p className="font-medium truncate text-foreground">
-                          {(webhook.config as any)?.url || "URL não configurada"}
+                          {(webhook.config as Record<string, string>)?.url || "URL não configurada"}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          Eventos: {(webhook.config as any)?.events || "Todos"}
+                          Eventos: {(webhook.config as Record<string, string>)?.events || "Todos"}
                         </p>
                       </div>
                       
@@ -403,7 +425,19 @@ export default function IntegrationsPage() {
             <div className="space-y-4 pt-2">
               {selectedType.fields.map((field) => (
                 <div key={field.key} className="space-y-2">
-                  <Label htmlFor={field.key}>{field.label}</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor={field.key}>{field.label}</Label>
+                    {field.help && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="w-4 h-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="max-w-[300px]">
+                          <p className="text-xs">{field.help}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
                   <Input
                     id={field.key}
                     value={formData[field.key] || ""}
@@ -435,6 +469,9 @@ export default function IntegrationsPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Conversion Events Documentation */}
+      <ConversionEventsCard />
     </div>
   );
 }
