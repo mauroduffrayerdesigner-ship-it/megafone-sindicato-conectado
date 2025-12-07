@@ -76,12 +76,11 @@ export const AVAILABLE_EVENTS = [
   },
 ];
 
-// Declaração global do dataLayer
+// Declaração global do dataLayer (fbq declarado em TrackingScripts.tsx)
 declare global {
   interface Window {
     dataLayer: Record<string, unknown>[];
-    gtag: (...args: unknown[]) => void;
-    fbq: (...args: unknown[]) => void;
+    gtag: ((...args: unknown[]) => void) | undefined;
   }
 }
 
@@ -114,7 +113,7 @@ export const useConversionTracking = () => {
 
   // Enviar evento para Meta Pixel
   const sendToMetaPixel = useCallback((event: string, data: ConversionEventData) => {
-    if (typeof window !== 'undefined' && window.fbq) {
+    if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
       // Mapear eventos para eventos padrão do Meta
       const metaEventMap: Record<string, string> = {
         lead_submitted: 'Lead',
@@ -130,6 +129,8 @@ export const useConversionTracking = () => {
       const metaEvent = metaEventMap[event] || event;
       window.fbq('track', metaEvent, data);
       console.log('[Tracking] Meta Pixel event:', metaEvent, data);
+    } else {
+      console.log('[Tracking] Meta Pixel não disponível para evento:', event);
     }
   }, []);
 
