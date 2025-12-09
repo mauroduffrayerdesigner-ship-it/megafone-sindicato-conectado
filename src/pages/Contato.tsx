@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -46,6 +47,7 @@ const services = [
 
 const Contato = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [formStarted, setFormStarted] = useState(false);
   const { trackLeadSubmitted, trackFormStart, trackWhatsAppClick, trackPhoneClick, trackEmailClick } = useConversionTracking();
@@ -96,18 +98,11 @@ const Contato = () => {
 
       toast({
         title: "Mensagem enviada!",
-        description: "Entraremos em contato em breve. Obrigado pelo interesse!",
+        description: "Redirecionando para página de confirmação...",
       });
 
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        organization: "",
-        service: "",
-        message: "",
-      });
-      setFormStarted(false);
+      // Redirecionar para página de obrigado
+      navigate('/obrigado');
     } catch (error: any) {
       console.error('Error submitting form:', error);
       toast({

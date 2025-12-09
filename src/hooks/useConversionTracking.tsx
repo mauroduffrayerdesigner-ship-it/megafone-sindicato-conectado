@@ -8,8 +8,10 @@ export type ConversionEventType =
   | 'button_click'
   | 'form_start'
   | 'whatsapp_click'
+  | 'whatsapp_float_click'
   | 'phone_click'
-  | 'email_click';
+  | 'email_click'
+  | 'registration_complete';
 
 export interface ConversionEventData {
   event_category?: string;
@@ -74,6 +76,18 @@ export const AVAILABLE_EVENTS = [
     category: 'contato',
     parameters: [],
   },
+  {
+    name: 'whatsapp_float_click',
+    description: 'Disparado quando o botão flutuante do WhatsApp é clicado',
+    category: 'contato',
+    parameters: ['event_label'],
+  },
+  {
+    name: 'registration_complete',
+    description: 'Disparado quando o usuário chega na página de obrigado',
+    category: 'conversao',
+    parameters: [],
+  },
 ];
 
 // Declaração global do dataLayer (fbq declarado em TrackingScripts.tsx)
@@ -121,10 +135,12 @@ export const useConversionTracking = () => {
         page_view: 'PageView',
         button_click: 'ViewContent',
         form_start: 'InitiateCheckout',
-        whatsapp_click: 'Contact',
-        phone_click: 'Contact',
-        email_click: 'Contact',
-      };
+      whatsapp_click: 'Contact',
+      whatsapp_float_click: 'Contact',
+      phone_click: 'Contact',
+      email_click: 'Contact',
+      registration_complete: 'CompleteRegistration',
+    };
 
       const metaEvent = metaEventMap[event] || event;
       window.fbq('track', metaEvent, data);
@@ -152,8 +168,10 @@ export const useConversionTracking = () => {
       button_click: 'engajamento',
       form_start: 'engajamento',
       whatsapp_click: 'contato',
+      whatsapp_float_click: 'contato',
       phone_click: 'contato',
       email_click: 'contato',
+      registration_complete: 'conversao',
     };
 
     eventData.event_category = eventData.event_category || categoryMap[eventType];
@@ -217,6 +235,19 @@ export const useConversionTracking = () => {
     });
   }, [trackEvent]);
 
+  const trackWhatsAppFloatClick = useCallback(() => {
+    trackEvent('whatsapp_float_click', {
+      event_label: 'whatsapp_botao_flutuante',
+    });
+  }, [trackEvent]);
+
+  const trackRegistrationComplete = useCallback(() => {
+    trackEvent('registration_complete', {
+      event_label: 'formulario_contato_concluido',
+      value: 1,
+    });
+  }, [trackEvent]);
+
   return {
     trackEvent,
     trackLeadSubmitted,
@@ -224,7 +255,9 @@ export const useConversionTracking = () => {
     trackButtonClick,
     trackFormStart,
     trackWhatsAppClick,
+    trackWhatsAppFloatClick,
     trackPhoneClick,
     trackEmailClick,
+    trackRegistrationComplete,
   };
 };
