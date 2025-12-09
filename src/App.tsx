@@ -23,6 +23,7 @@ import BlogPostsPage from "./pages/admin/BlogPostsPage";
 import BlogPostEditor from "./pages/admin/BlogPostEditor";
 import NewsletterPage from "./pages/admin/NewsletterPage";
 import IntegrationsPage from "./pages/admin/IntegrationsPage";
+import UsersPage from "./pages/admin/UsersPage";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,7 @@ const App = () => (
                 <Route path="blog/:id/edit" element={<BlogPostEditor />} />
                 <Route path="newsletter" element={<NewsletterPage />} />
                 <Route path="integrations" element={<IntegrationsPage />} />
+                <Route path="users" element={<UsersPage />} />
               </Route>
               
               <Route path="*" element={<NotFound />} />
