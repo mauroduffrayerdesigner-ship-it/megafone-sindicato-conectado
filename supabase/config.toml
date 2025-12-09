@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.subscribe-newsletter]
 verify_jwt = false
+
+[functions.track-whatsapp-click]
+verify_jwt = false

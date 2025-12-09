@@ -217,10 +217,29 @@ export const useConversionTracking = () => {
     });
   }, [trackEvent]);
 
-  const trackWhatsAppClick = useCallback(() => {
+  const trackWhatsAppClick = useCallback(async () => {
     trackEvent('whatsapp_click', {
       event_label: 'whatsapp_contato',
     });
+    
+    // Salvar no Supabase
+    try {
+      const visitorId = localStorage.getItem('visitor_id') || 'unknown';
+      const sessionId = sessionStorage.getItem('session_id') || 'unknown';
+      
+      await fetch('https://mkozkrpyjehtfqsfnymr.supabase.co/functions/v1/track-whatsapp-click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          source: 'contato_page',
+          visitor_id: visitorId,
+          page_path: window.location.pathname,
+          session_id: sessionId,
+        }),
+      });
+    } catch (error) {
+      console.error('[Tracking] Error saving WhatsApp click:', error);
+    }
   }, [trackEvent]);
 
   const trackPhoneClick = useCallback(() => {
@@ -235,10 +254,29 @@ export const useConversionTracking = () => {
     });
   }, [trackEvent]);
 
-  const trackWhatsAppFloatClick = useCallback(() => {
+  const trackWhatsAppFloatClick = useCallback(async () => {
     trackEvent('whatsapp_float_click', {
       event_label: 'whatsapp_botao_flutuante',
     });
+    
+    // Salvar no Supabase
+    try {
+      const visitorId = localStorage.getItem('visitor_id') || 'unknown';
+      const sessionId = sessionStorage.getItem('session_id') || 'unknown';
+      
+      await fetch('https://mkozkrpyjehtfqsfnymr.supabase.co/functions/v1/track-whatsapp-click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          source: 'float_button',
+          visitor_id: visitorId,
+          page_path: window.location.pathname,
+          session_id: sessionId,
+        }),
+      });
+    } catch (error) {
+      console.error('[Tracking] Error saving WhatsApp click:', error);
+    }
   }, [trackEvent]);
 
   const trackRegistrationComplete = useCallback(() => {

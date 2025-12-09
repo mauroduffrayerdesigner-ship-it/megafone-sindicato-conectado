@@ -1,10 +1,22 @@
+import { useState, useMemo } from "react";
 import { useLeads } from "@/hooks/useLeads";
 import { useBlogPosts } from "@/hooks/useBlogPosts";
 import { useNewsletter } from "@/hooks/useNewsletter";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useWhatsAppAnalytics } from "@/hooks/useWhatsAppAnalytics";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, FileText, Mail, TrendingUp, Clock, Eye, UserCheck, BarChart3 } from "lucide-react";
-import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Users, FileText, Mail, TrendingUp, Clock, Eye, UserCheck, BarChart3, MessageCircle, Download, CalendarIcon } from "lucide-react";
+import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -14,31 +26,80 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { cn } from "@/lib/utils";
+import type { DateRange } from "react-day-picker";
 
 const chartConfig = {
   views: {
     label: "Visitas",
     color: "hsl(var(--primary))",
   },
+  clicks: {
+    label: "WhatsApp",
+    color: "hsl(142, 76%, 36%)",
+  },
 };
 
+type PeriodOption = "7" | "30" | "60" | "90" | "custom";
+
 export default function AdminDashboard() {
+  const [period, setPeriod] = useState<PeriodOption>("30");
+  const [customDateRange, setCustomDateRange] = useState<DateRange | undefined>();
+
+  // Calcular datas baseado no período selecionado
+  const { startDate, endDate } = useMemo(() => {
+    const now = new Date();
+    const end = endOfDay(now);
+    
+    if (period === "custom" && customDateRange?.from) {
+      return {
+        startDate: startOfDay(customDateRange.from),
+        endDate: customDateRange.to ? endOfDay(customDateRange.to) : end,
+      };
+    }
+    
+    const days = parseInt(period) || 30;
+    return {
+      startDate: startOfDay(subDays(now, days - 1)),
+      endDate: end,
+    };
+  }, [period, customDateRange]);
+
   const { leads, isLoading: leadsLoading } = useLeads();
   const { posts, isLoading: postsLoading } = useBlogPosts();
   const { stats, isLoading: newsletterLoading } = useNewsletter();
-  const { totalViews, todayViews, uniqueVisitors, viewsByDay, topPages, isLoading: analyticsLoading } = useAnalytics();
+  const { totalViews, todayViews, uniqueVisitors, viewsByDay, topPages, isLoading: analyticsLoading } = useAnalytics({ startDate, endDate });
+  const { totalClicks: whatsappClicks, todayClicks: whatsappTodayClicks, clicksByDay, isLoading: whatsappLoading } = useWhatsAppAnalytics(startDate, endDate);
 
-  const isLoading = leadsLoading || postsLoading || newsletterLoading || analyticsLoading;
+  const isLoading = leadsLoading || postsLoading || newsletterLoading || analyticsLoading || whatsappLoading;
 
   // Calcular métricas
-  const today = new Date();
-  const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-  
-  const newLeadsThisWeek = leads.filter(
-    lead => new Date(lead.created_at) >= sevenDaysAgo
+  const newLeadsInPeriod = leads.filter(
+    lead => new Date(lead.created_at) >= startDate && new Date(lead.created_at) <= endDate
   ).length;
 
   const publishedPosts = posts.filter(post => post.published).length;
+
+  // Combinar dados de visitas e WhatsApp para o gráfico
+  const combinedChartData = useMemo(() => {
+    const viewsMap = new Map(viewsByDay.map(v => [v.date, v.views]));
+    const clicksMap = new Map(clicksByDay.map(c => [c.date, c.clicks]));
+    
+    const allDates = new Set([...viewsMap.keys(), ...clicksMap.keys()]);
+    
+    return Array.from(allDates)
+      .sort((a, b) => {
+        const [dayA, monthA] = a.split('/').map(Number);
+        const [dayB, monthB] = b.split('/').map(Number);
+        if (monthA !== monthB) return monthA - monthB;
+        return dayA - dayB;
+      })
+      .map(date => ({
+        date,
+        views: viewsMap.get(date) || 0,
+        clicks: clicksMap.get(date) || 0,
+      }));
+  }, [viewsByDay, clicksByDay]);
 
   const statusColors: Record<string, string> = {
     novo: "bg-blue-500/10 text-blue-500",
@@ -54,6 +115,43 @@ export default function AdminDashboard() {
     perdido: "Perdido",
   };
 
+  // Função para exportar CSV
+  const exportCSV = () => {
+    const periodLabel = period === "custom" 
+      ? `${format(startDate, "dd-MM-yyyy")}_${format(endDate, "dd-MM-yyyy")}`
+      : `ultimos_${period}_dias`;
+    
+    // Header
+    let csv = "Data,Visitas,Cliques WhatsApp\n";
+    
+    // Dados combinados
+    combinedChartData.forEach(row => {
+      csv += `${row.date},${row.views},${row.clicks}\n`;
+    });
+    
+    // Resumo
+    csv += "\n\nResumo\n";
+    csv += `Total de Visitas,${totalViews}\n`;
+    csv += `Visitantes Únicos,${uniqueVisitors}\n`;
+    csv += `Cliques WhatsApp,${whatsappClicks}\n`;
+    csv += `Leads no Período,${newLeadsInPeriod}\n`;
+    csv += `Taxa de Conversão,${totalViews > 0 ? ((leads.length / totalViews) * 100).toFixed(2) : 0}%\n`;
+    
+    // Páginas mais visitadas
+    csv += "\n\nPáginas Mais Visitadas\n";
+    csv += "Página,Visitas\n";
+    topPages.forEach(page => {
+      csv += `${page.path},${page.views}\n`;
+    });
+    
+    // Download
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `analytics_${periodLabel}.csv`;
+    link.click();
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -64,16 +162,71 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="font-display text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground mt-1">
-          Visão geral do seu painel administrativo
-        </p>
+      {/* Header with Period Filter */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="font-display text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground mt-1">
+            Visão geral do seu painel administrativo
+          </p>
+        </div>
+        
+        <div className="flex flex-wrap items-center gap-2">
+          <Select value={period} onValueChange={(v) => setPeriod(v as PeriodOption)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Selecione o período" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">Últimos 7 dias</SelectItem>
+              <SelectItem value="30">Últimos 30 dias</SelectItem>
+              <SelectItem value="60">Últimos 60 dias</SelectItem>
+              <SelectItem value="90">Últimos 90 dias</SelectItem>
+              <SelectItem value="custom">Personalizado</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {period === "custom" && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className={cn("justify-start text-left font-normal", !customDateRange && "text-muted-foreground")}>
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {customDateRange?.from ? (
+                    customDateRange.to ? (
+                      <>
+                        {format(customDateRange.from, "dd/MM/yy")} - {format(customDateRange.to, "dd/MM/yy")}
+                      </>
+                    ) : (
+                      format(customDateRange.from, "dd/MM/yyyy")
+                    )
+                  ) : (
+                    <span>Selecione datas</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={customDateRange?.from}
+                  selected={customDateRange}
+                  onSelect={setCustomDateRange}
+                  numberOfMonths={2}
+                  disabled={(date) => date > new Date() || date < subDays(new Date(), 365)}
+                  className="pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          )}
+
+          <Button variant="outline" onClick={exportCSV}>
+            <Download className="h-4 w-4 mr-2" />
+            Exportar CSV
+          </Button>
+        </div>
       </div>
 
       {/* Analytics Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -84,7 +237,7 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="text-3xl font-bold">{totalViews}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              todas as páginas
+              +{todayViews} hoje
             </p>
           </CardContent>
         </Card>
@@ -99,22 +252,22 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="text-3xl font-bold">{uniqueVisitors}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              visitantes distintos
+              no período
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-green-500/20 bg-green-500/5">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Visitas Hoje
+              Conversas WhatsApp
             </CardTitle>
-            <BarChart3 className="h-5 w-5 text-blue-500" />
+            <MessageCircle className="h-5 w-5 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{todayViews}</div>
+            <div className="text-3xl font-bold text-green-600">{whatsappClicks}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              nas últimas 24h
+              +{whatsappTodayClicks} hoje
             </p>
           </CardContent>
         </Card>
@@ -129,7 +282,24 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="text-3xl font-bold">{leads.length}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              <span className="text-green-500">+{newLeadsThisWeek}</span> nos últimos 7 dias
+              <span className="text-green-500">+{newLeadsInPeriod}</span> no período
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Taxa de Conversão
+            </CardTitle>
+            <TrendingUp className="h-5 w-5 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {totalViews > 0 ? ((leads.length / totalViews) * 100).toFixed(1) : 0}%
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              leads / visitas
             </p>
           </CardContent>
         </Card>
@@ -140,14 +310,14 @@ export default function AdminDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Leads Novos
+              Leads no Período
             </CardTitle>
             <TrendingUp className="h-5 w-5 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{newLeadsThisWeek}</div>
+            <div className="text-3xl font-bold">{newLeadsInPeriod}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Últimos 7 dias
+              no período selecionado
             </p>
           </CardContent>
         </Card>
@@ -185,16 +355,14 @@ export default function AdminDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Taxa de Conversão
+              Visitas Hoje
             </CardTitle>
-            <TrendingUp className="h-5 w-5 text-primary" />
+            <BarChart3 className="h-5 w-5 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">
-              {totalViews > 0 ? ((leads.length / totalViews) * 100).toFixed(1) : 0}%
-            </div>
+            <div className="text-3xl font-bold">{todayViews}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              leads / visitas
+              nas últimas 24h
             </p>
           </CardContent>
         </Card>
@@ -202,16 +370,16 @@ export default function AdminDashboard() {
 
       {/* Charts and Lists */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Views Chart */}
+        {/* Combined Views + WhatsApp Chart */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Visitas nos Últimos 7 Dias</CardTitle>
+            <CardTitle className="text-lg">Visitas e WhatsApp no Período</CardTitle>
           </CardHeader>
           <CardContent>
-            {viewsByDay.length > 0 ? (
-              <ChartContainer config={chartConfig} className="h-[200px] w-full">
+            {combinedChartData.length > 0 ? (
+              <ChartContainer config={chartConfig} className="h-[250px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={viewsByDay}>
+                  <LineChart data={combinedChartData}>
                     <XAxis 
                       dataKey="date" 
                       stroke="hsl(var(--muted-foreground))"
@@ -230,18 +398,37 @@ export default function AdminDashboard() {
                     <Line
                       type="monotone"
                       dataKey="views"
+                      name="Visitas"
                       stroke="hsl(var(--primary))"
                       strokeWidth={2}
-                      dot={{ fill: "hsl(var(--primary))", strokeWidth: 2 }}
+                      dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 3 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="clicks"
+                      name="WhatsApp"
+                      stroke="hsl(142, 76%, 36%)"
+                      strokeWidth={2}
+                      dot={{ fill: "hsl(142, 76%, 36%)", strokeWidth: 2, r: 3 }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
               </ChartContainer>
             ) : (
               <p className="text-muted-foreground text-center py-8">
-                Sem dados de visitas ainda.
+                Sem dados no período selecionado.
               </p>
             )}
+            <div className="flex justify-center gap-6 mt-4">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-primary" />
+                <span className="text-sm text-muted-foreground">Visitas</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: "hsl(142, 76%, 36%)" }} />
+                <span className="text-sm text-muted-foreground">WhatsApp</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 

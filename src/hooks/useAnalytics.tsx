@@ -1,18 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { startOfDay, subDays, format } from "date-fns";
+import { startOfDay, format, eachDayOfInterval } from "date-fns";
 
-export function useAnalytics() {
+interface AnalyticsParams {
+  startDate: Date;
+  endDate: Date;
+}
+
+export function useAnalytics({ startDate, endDate }: AnalyticsParams) {
   const today = startOfDay(new Date());
-  const sevenDaysAgo = subDays(today, 7);
 
-  // Total de visitas
+  // Total de visitas no período
   const { data: totalViews = 0, isLoading: totalLoading } = useQuery({
-    queryKey: ["analytics", "total"],
+    queryKey: ["analytics", "total", startDate.toISOString(), endDate.toISOString()],
     queryFn: async () => {
       const { count } = await supabase
         .from("page_views")
-        .select("*", { count: "exact", head: true });
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", startDate.toISOString())
+        .lte("created_at", endDate.toISOString());
       return count || 0;
     },
   });
@@ -29,38 +35,39 @@ export function useAnalytics() {
     },
   });
 
-  // Visitantes únicos
+  // Visitantes únicos no período
   const { data: uniqueVisitors = 0, isLoading: uniqueLoading } = useQuery({
-    queryKey: ["analytics", "unique"],
+    queryKey: ["analytics", "unique", startDate.toISOString(), endDate.toISOString()],
     queryFn: async () => {
       const { data } = await supabase
         .from("page_views")
-        .select("visitor_id");
+        .select("visitor_id")
+        .gte("created_at", startDate.toISOString())
+        .lte("created_at", endDate.toISOString());
       if (!data) return 0;
       return new Set(data.map(d => d.visitor_id)).size;
     },
   });
 
-  // Visitas por dia (últimos 7 dias)
+  // Visitas por dia no período
   const { data: viewsByDay = [], isLoading: byDayLoading } = useQuery({
-    queryKey: ["analytics", "byDay"],
+    queryKey: ["analytics", "byDay", startDate.toISOString(), endDate.toISOString()],
     queryFn: async () => {
       const { data } = await supabase
         .from("page_views")
         .select("created_at")
-        .gte("created_at", sevenDaysAgo.toISOString())
+        .gte("created_at", startDate.toISOString())
+        .lte("created_at", endDate.toISOString())
         .order("created_at", { ascending: true });
 
       if (!data) return [];
 
-      // Agregar por dia
-      const counts: Record<string, number> = {};
-      
       // Inicializar todos os dias com 0
-      for (let i = 0; i < 7; i++) {
-        const date = format(subDays(new Date(), 6 - i), "dd/MM");
-        counts[date] = 0;
-      }
+      const counts: Record<string, number> = {};
+      const days = eachDayOfInterval({ start: startDate, end: endDate });
+      days.forEach(day => {
+        counts[format(day, "dd/MM")] = 0;
+      });
 
       // Contar visitas por dia
       data.forEach(row => {
@@ -77,13 +84,15 @@ export function useAnalytics() {
     },
   });
 
-  // Páginas mais visitadas
+  // Páginas mais visitadas no período
   const { data: topPages = [], isLoading: topPagesLoading } = useQuery({
-    queryKey: ["analytics", "topPages"],
+    queryKey: ["analytics", "topPages", startDate.toISOString(), endDate.toISOString()],
     queryFn: async () => {
       const { data } = await supabase
         .from("page_views")
-        .select("path");
+        .select("path")
+        .gte("created_at", startDate.toISOString())
+        .lte("created_at", endDate.toISOString());
 
       if (!data) return [];
 
