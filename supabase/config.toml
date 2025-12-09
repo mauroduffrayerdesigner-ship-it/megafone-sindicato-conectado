@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.track-whatsapp-click]
 verify_jwt = false
+
+[functions.reset-analytics]
+verify_jwt = false
