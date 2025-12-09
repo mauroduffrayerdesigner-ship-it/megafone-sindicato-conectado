@@ -50,7 +50,7 @@ O **MegaFone** é uma plataforma web moderna e completa desenvolvida para agênc
 - 📝 **Blog Integrado** - Sistema de publicação com categorias e SEO
 - 📧 **Newsletter** - Captação e gestão de assinantes
 - 📈 **Analytics** - Rastreamento de pageviews e comportamento
-- 🔒 **Autenticação Segura** - Sistema de login com roles (admin/editor/user)
+- 🔒 **Autenticação Segura** - Sistema de login com roles (Admin/Gerenciador de Conteúdo)
 
 ---
 
@@ -88,9 +88,11 @@ O **MegaFone** é uma plataforma web moderna e completa desenvolvida para agênc
 ### 🔐 Sistema de Autenticação
 
 - Login seguro com email/senha via Supabase Auth
-- Sistema de roles: `admin`, `editor`, `user`
-- Proteção de rotas administrativas
-- Verificação de permissões via RPC
+- Sistema de roles simplificado:
+  - **Admin**: Acesso total (Dashboard, Blog, Leads, Newsletter, Usuários, Integrações)
+  - **Gerenciador de Conteúdo** (editor): Acesso a Dashboard, Blog, Leads e Newsletter
+- Proteção de rotas administrativas baseada em permissões
+- Verificação de permissões via RPC (`has_role`)
 
 ### 📈 Analytics e Tracking
 
@@ -343,9 +345,9 @@ Registra visualizações de página para analytics.
 └─────────────────────┘     │ type (text)         │
                             │ config (jsonb)      │
 app_role ENUM:              │ active (bool)       │
-- admin                     │ created_at          │
-- editor                    │ updated_at          │
-- user                      └─────────────────────┘
+- admin (acesso total)      │ created_at          │
+- editor (gerenciador)      │ updated_at          │
+                            └─────────────────────┘
 ```
 
 ### Políticas RLS (Row Level Security)
@@ -372,7 +374,7 @@ O projeto implementa múltiplas camadas de segurança:
 | Camada | Recurso |
 |--------|---------|
 | **Autenticação** | Supabase Auth com JWT |
-| **Autorização** | Sistema de roles (admin/editor/user) |
+| **Autorização** | Sistema de roles (Admin/Gerenciador de Conteúdo) com permissões granulares |
 | **RLS** | Políticas em todas as tabelas |
 | **Input Validation** | Validação server-side nas Edge Functions |
 | **Rate Limiting** | Proteção contra abuse em todas as APIs públicas |
