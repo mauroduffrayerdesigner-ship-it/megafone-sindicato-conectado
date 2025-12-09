@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useIntegrations, Integration } from "@/hooks/useIntegrations";
+import { useAdmin } from "@/hooks/useAdmin";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -94,7 +96,17 @@ const integrationTypes: IntegrationType[] = [
 
 export default function IntegrationsPage() {
   const { integrations, isLoading, createIntegration, updateIntegration, deleteIntegration } = useIntegrations();
+  const { canAccessIntegrations, isLoading: authLoading } = useAdmin();
+  const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Redirect if user doesn't have permission
+  useEffect(() => {
+    if (!authLoading && !canAccessIntegrations) {
+      navigate("/admin");
+      toast({ title: "Acesso negado", description: "Você não tem permissão para acessar esta página.", variant: "destructive" });
+    }
+  }, [canAccessIntegrations, authLoading, navigate, toast]);
   const [selectedType, setSelectedType] = useState<IntegrationType | null>(null);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -185,7 +197,7 @@ export default function IntegrationsPage() {
     return integrations.find((i) => i.name === typeId);
   };
 
-  if (isLoading) {
+  if (isLoading || authLoading || !canAccessIntegrations) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>

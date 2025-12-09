@@ -18,25 +18,28 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
-  { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { name: "Leads", href: "/admin/leads", icon: Users },
-  { name: "Usuários", href: "/admin/users", icon: UserCog },
-  { name: "Blog", href: "/admin/blog", icon: FileText },
-  { name: "Newsletter", href: "/admin/newsletter", icon: Mail },
-  { name: "Integrações", href: "/admin/integrations", icon: Settings },
+  { name: "Dashboard", href: "/admin", icon: LayoutDashboard, adminOnly: false },
+  { name: "Leads", href: "/admin/leads", icon: Users, adminOnly: false },
+  { name: "Usuários", href: "/admin/users", icon: UserCog, adminOnly: true },
+  { name: "Blog", href: "/admin/blog", icon: FileText, adminOnly: false },
+  { name: "Newsletter", href: "/admin/newsletter", icon: Mail, adminOnly: false },
+  { name: "Integrações", href: "/admin/integrations", icon: Settings, adminOnly: true },
 ];
 
 export default function AdminLayout() {
-  const { user, isAdmin, isLoading, signOut } = useAdmin();
+  const { user, isAdmin, isEditor, userRole, isLoading, signOut, canAccessUsers, canAccessIntegrations } = useAdmin();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Allow both admin and editor to access the admin area
+  const hasAccess = isAdmin || isEditor;
+
   useEffect(() => {
-    if (!isLoading && (!user || !isAdmin)) {
+    if (!isLoading && (!user || !hasAccess)) {
       navigate("/logarcomodono");
     }
-  }, [user, isAdmin, isLoading, navigate]);
+  }, [user, hasAccess, isLoading, navigate]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -51,9 +54,15 @@ export default function AdminLayout() {
     );
   }
 
-  if (!user || !isAdmin) {
+  if (!user || !hasAccess) {
     return null;
   }
+
+  // Filter navigation based on permissions
+  const filteredNavigation = navigation.filter(item => {
+    if (!item.adminOnly) return true;
+    return isAdmin;
+  });
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -86,7 +95,7 @@ export default function AdminLayout() {
 
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-1">
-            {navigation.map((item) => {
+            {filteredNavigation.map((item) => {
               const isActive = location.pathname === item.href || 
                 (item.href !== "/admin" && location.pathname.startsWith(item.href));
               
@@ -113,7 +122,9 @@ export default function AdminLayout() {
           <div className="p-4 border-t border-border">
             <div className="mb-4 px-4 py-2">
               <p className="text-sm font-medium truncate">{user.email}</p>
-              <p className="text-xs text-muted-foreground">Administrador</p>
+              <p className="text-xs text-muted-foreground">
+                {isAdmin ? 'Administrador' : 'Gerenciador de Conteúdo'}
+              </p>
             </div>
             <Button
               variant="ghost"

@@ -2,21 +2,29 @@ import { useState, useEffect, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
+type AppRole = 'admin' | 'editor';
+
 interface UseAdminReturn {
   user: User | null;
   session: Session | null;
   isAdmin: boolean;
+  isEditor: boolean;
+  userRole: AppRole | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   checkAdminRole: (userId: string) => Promise<boolean>;
   refreshSession: () => Promise<boolean>;
+  canAccessUsers: boolean;
+  canAccessIntegrations: boolean;
 }
 
 export function useAdmin(): UseAdminReturn {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isEditor, setIsEditor] = useState(false);
+  const [userRole, setUserRole] = useState<AppRole | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const checkAdminRole = useCallback(async (userId: string): Promise<boolean> => {
@@ -35,6 +43,45 @@ export function useAdmin(): UseAdminReturn {
       return false;
     }
   }, []);
+
+  const checkEditorRole = useCallback(async (userId: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase
+        .rpc('has_role', { _user_id: userId, _role: 'editor' });
+      
+      if (error) {
+        console.error('Error checking editor role:', error);
+        return false;
+      }
+      
+      return data === true;
+    } catch (err) {
+      console.error('Exception checking editor role:', err);
+      return false;
+    }
+  }, []);
+
+  const checkUserRoles = useCallback(async (userId: string) => {
+    const adminStatus = await checkAdminRole(userId);
+    if (adminStatus) {
+      setIsAdmin(true);
+      setIsEditor(false);
+      setUserRole('admin');
+      return;
+    }
+    
+    const editorStatus = await checkEditorRole(userId);
+    if (editorStatus) {
+      setIsAdmin(false);
+      setIsEditor(true);
+      setUserRole('editor');
+      return;
+    }
+    
+    setIsAdmin(false);
+    setIsEditor(false);
+    setUserRole(null);
+  }, [checkAdminRole, checkEditorRole]);
 
   const refreshSession = useCallback(async (): Promise<boolean> => {
     try {
@@ -72,15 +119,16 @@ export function useAdmin(): UseAdminReturn {
           console.log('Token refreshed successfully');
         }
         
-        // Defer admin check with setTimeout to avoid deadlock
+        // Defer role check with setTimeout to avoid deadlock
         if (currentSession?.user) {
           setTimeout(async () => {
-            const adminStatus = await checkAdminRole(currentSession.user.id);
-            setIsAdmin(adminStatus);
+            await checkUserRoles(currentSession.user.id);
             setIsLoading(false);
           }, 0);
         } else {
           setIsAdmin(false);
+          setIsEditor(false);
+          setUserRole(null);
           setIsLoading(false);
         }
       }
@@ -111,8 +159,7 @@ export function useAdmin(): UseAdminReturn {
           setSession(refreshData.session);
           setUser(refreshData.session.user);
           
-          const adminStatus = await checkAdminRole(refreshData.session.user.id);
-          setIsAdmin(adminStatus);
+          await checkUserRoles(refreshData.session.user.id);
         }
         
         setIsLoading(false);
@@ -125,7 +172,7 @@ export function useAdmin(): UseAdminReturn {
     initSession();
 
     return () => subscription.unsubscribe();
-  }, [checkAdminRole]);
+  }, [checkUserRoles]);
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -149,16 +196,26 @@ export function useAdmin(): UseAdminReturn {
     setUser(null);
     setSession(null);
     setIsAdmin(false);
+    setIsEditor(false);
+    setUserRole(null);
   };
+
+  // Computed permissions
+  const canAccessUsers = isAdmin;
+  const canAccessIntegrations = isAdmin;
 
   return {
     user,
     session,
     isAdmin,
+    isEditor,
+    userRole,
     isLoading,
     signIn,
     signOut,
     checkAdminRole,
     refreshSession,
+    canAccessUsers,
+    canAccessIntegrations,
   };
 }

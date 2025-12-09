@@ -46,7 +46,7 @@ import { ptBR } from "date-fns/locale";
 import { Plus, Trash2, Shield, Edit2, UserCog, Loader2, RefreshCw, LogIn } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-type UserRole = "admin" | "editor" | "user";
+type UserRole = "admin" | "editor";
 
 interface UserToDelete {
   id: string;
@@ -91,7 +91,7 @@ export default function UsersPage() {
   // Create form state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<UserRole>("user");
+  const [role, setRole] = useState<UserRole>("editor");
   const [forcePasswordChange, setForcePasswordChange] = useState(true);
 
   const handleCreateUser = async () => {
@@ -131,7 +131,7 @@ export default function UsersPage() {
   const resetForm = () => {
     setEmail("");
     setPassword("");
-    setRole("user");
+    setRole("editor");
     setForcePasswordChange(true);
   };
 
@@ -145,14 +145,13 @@ export default function UsersPage() {
     setIsEditDialogOpen(true);
   };
 
-  const getRoleBadge = (role: UserRole) => {
-    const variants: Record<UserRole, { label: string; className: string }> = {
-      admin: { label: "Admin", className: "bg-primary text-primary-foreground" },
-      editor: { label: "Editor", className: "bg-secondary text-secondary-foreground" },
-      user: { label: "Usuário", className: "bg-muted text-muted-foreground" },
+  const getRoleBadge = (role: UserRole | string) => {
+    const variants: Record<string, { label: string; className: string }> = {
+      admin: { label: "Administrador", className: "bg-primary text-primary-foreground" },
+      editor: { label: "Gerenciador de Conteúdo", className: "bg-secondary text-secondary-foreground" },
     };
     
-    const { label, className } = variants[role] || variants.user;
+    const { label, className } = variants[role] || { label: role, className: "bg-muted text-muted-foreground" };
     return <Badge className={className}>{label}</Badge>;
   };
 
@@ -273,7 +272,7 @@ export default function UsersPage() {
                         onClick={() => openEditDialog({ 
                           id: user.id, 
                           email: user.email, 
-                          role: user.role 
+                          role: (user.role === 'admin' || user.role === 'editor') ? user.role : 'editor'
                         })}
                         title="Editar role"
                       >
@@ -305,9 +304,8 @@ export default function UsersPage() {
         <div className="text-sm text-muted-foreground">
           <p className="font-medium text-foreground">Sobre as permissões:</p>
           <ul className="mt-1 space-y-1">
-            <li><strong>Admin:</strong> Acesso total ao painel administrativo</li>
-            <li><strong>Editor:</strong> Pode criar e editar conteúdo do blog</li>
-            <li><strong>Usuário:</strong> Acesso básico ao sistema</li>
+            <li><strong>Administrador:</strong> Acesso total ao painel (inclui gerenciamento de usuários e integrações)</li>
+            <li><strong>Gerenciador de Conteúdo:</strong> Acesso ao Dashboard, Blog, Leads e Newsletter</li>
           </ul>
         </div>
       </div>
@@ -355,9 +353,8 @@ export default function UsersPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="admin">Admin - Acesso total</SelectItem>
-                  <SelectItem value="editor">Editor - Gerencia conteúdo</SelectItem>
-                  <SelectItem value="user">Usuário - Acesso básico</SelectItem>
+                  <SelectItem value="admin">Administrador - Acesso total</SelectItem>
+                  <SelectItem value="editor">Gerenciador de Conteúdo - Dashboard, Blog, Leads, Newsletter</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -412,9 +409,8 @@ export default function UsersPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="admin">Admin - Acesso total</SelectItem>
-                  <SelectItem value="editor">Editor - Gerencia conteúdo</SelectItem>
-                  <SelectItem value="user">Usuário - Acesso básico</SelectItem>
+                  <SelectItem value="admin">Administrador - Acesso total</SelectItem>
+                  <SelectItem value="editor">Gerenciador de Conteúdo - Dashboard, Blog, Leads, Newsletter</SelectItem>
                 </SelectContent>
               </Select>
             </div>
