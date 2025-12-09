@@ -76,7 +76,7 @@ export function Footer() {
             </Link>
             <span className="text-muted-foreground text-sm hidden md:inline">•</span>
             <p className="text-muted-foreground text-sm">
-              A serviço da classe trabalhadora
+              Desenvolvido por <span className="font-medium text-foreground">Duffrayer Designer</span>, com dedicação e cuidado
             </p>
           </div>
         </div>

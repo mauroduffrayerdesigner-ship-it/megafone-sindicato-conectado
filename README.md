@@ -523,7 +523,7 @@ npm run build
 # Via CLI ou arrastar para o dashboard
 ```
 
-#### Opção 4: Docker (Self-Hosting)
+#### Opção 4: Docker (Self-Hosting Básico)
 
 ```dockerfile
 # Dockerfile
@@ -544,6 +544,302 @@ CMD ["nginx", "-g", "daemon off;"]
 # Build e run
 docker build -t megafone .
 docker run -p 80:80 megafone
+```
+
+---
+
+### 🐳 Opção 5: Docker + Hostinger VPS (Self-Hosting Completo)
+
+Este guia detalha o deploy completo em uma VPS Hostinger usando Docker.
+
+#### 📋 Pré-requisitos
+
+- VPS Hostinger com Ubuntu 22.04 ou superior
+- Domínio configurado apontando para o IP da VPS
+- Acesso SSH à VPS
+
+#### Passo 1: Preparar a VPS
+
+```bash
+# Conecte via SSH
+ssh root@seu-ip-da-vps
+
+# Atualize o sistema
+apt update && apt upgrade -y
+
+# Instale o Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+
+# Instale o Docker Compose
+apt install docker-compose-plugin -y
+
+# Verifique a instalação
+docker --version
+docker compose version
+```
+
+#### Passo 2: Criar a Estrutura do Projeto
+
+```bash
+# Crie o diretório do projeto
+mkdir -p /opt/megafone
+cd /opt/megafone
+```
+
+#### Passo 3: Dockerfile Otimizado
+
+Crie o arquivo `Dockerfile`:
+
+```dockerfile
+# Estágio de build
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Instala dependências primeiro (cache otimizado)
+COPY package*.json ./
+RUN npm ci --silent
+
+# Copia código fonte e faz build
+COPY . .
+
+# Variáveis de ambiente em build time
+ARG VITE_SUPABASE_PROJECT_ID
+ARG VITE_SUPABASE_PUBLISHABLE_KEY
+ARG VITE_SUPABASE_URL
+
+ENV VITE_SUPABASE_PROJECT_ID=$VITE_SUPABASE_PROJECT_ID
+ENV VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+
+RUN npm run build
+
+# Estágio de produção com Nginx
+FROM nginx:alpine
+
+# Copia configuração customizada do Nginx
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Copia arquivos buildados
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Expõe porta 80
+EXPOSE 80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost/ || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+#### Passo 4: Configuração do Nginx
+
+Crie o arquivo `nginx.conf`:
+
+```nginx
+worker_processes auto;
+error_log /var/log/nginx/error.log warn;
+pid /var/run/nginx.pid;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log /var/log/nginx/access.log main;
+
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+
+    # Compressão Gzip
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css text/xml application/json application/javascript 
+               application/rss+xml application/atom+xml image/svg+xml;
+
+    server {
+        listen 80;
+        server_name _;
+        root /usr/share/nginx/html;
+        index index.html;
+
+        # SPA routing - redireciona todas as rotas para index.html
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+
+        # Cache para assets estáticos
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
+
+        # Segurança headers
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    }
+}
+```
+
+#### Passo 5: Docker Compose
+
+Crie o arquivo `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+
+services:
+  megafone:
+    build:
+      context: .
+      args:
+        VITE_SUPABASE_PROJECT_ID: ${VITE_SUPABASE_PROJECT_ID}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY}
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+    container_name: megafone-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    networks:
+      - megafone-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  megafone-network:
+    driver: bridge
+```
+
+#### Passo 6: Variáveis de Ambiente
+
+Crie o arquivo `.env` na VPS:
+
+```bash
+nano /opt/megafone/.env
+```
+
+```env
+VITE_SUPABASE_PROJECT_ID=seu_project_id
+VITE_SUPABASE_PUBLISHABLE_KEY=sua_anon_key
+VITE_SUPABASE_URL=https://seu_project_id.supabase.co
+```
+
+#### Passo 7: Deploy
+
+```bash
+# Clone ou copie seu código para /opt/megafone
+git clone https://github.com/seu-usuario/megafone.git /opt/megafone
+
+# OU via SCP do seu computador local:
+scp -r ./megafone root@seu-ip-da-vps:/opt/
+
+# Navegue até o diretório
+cd /opt/megafone
+
+# Build e inicie os containers
+docker compose up -d --build
+
+# Verifique se está rodando
+docker compose ps
+docker compose logs -f
+```
+
+#### Passo 8: Configurar SSL com Certbot (HTTPS)
+
+```bash
+# Instale o Certbot
+apt install certbot python3-certbot-nginx -y
+
+# Gere o certificado (substitua pelo seu domínio)
+certbot --nginx -d megafone.com.br -d www.megafone.com.br
+
+# O certificado será renovado automaticamente
+certbot renew --dry-run
+```
+
+#### Passo 9: Comandos Úteis
+
+```bash
+# Parar os containers
+docker compose down
+
+# Reiniciar
+docker compose restart
+
+# Ver logs em tempo real
+docker compose logs -f megafone
+
+# Atualizar a aplicação
+cd /opt/megafone
+git pull origin main
+docker compose up -d --build
+
+# Limpar imagens antigas
+docker system prune -af
+```
+
+#### Passo 10: Configurar Firewall
+
+```bash
+# Habilite o UFW
+ufw allow ssh
+ufw allow http
+ufw allow https
+ufw enable
+
+# Verifique as regras
+ufw status
+```
+
+---
+
+#### 📊 Diagrama de Arquitetura Docker/VPS
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         HOSTINGER VPS                                │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │                        Docker                                │    │
+│  │   ┌──────────────────────────────────────────────────────┐  │    │
+│  │   │              megafone-web container                   │  │    │
+│  │   │  ┌─────────────────┐    ┌───────────────────────┐   │  │    │
+│  │   │  │     Nginx       │    │    React App (dist)    │   │  │    │
+│  │   │  │  (Porta 80/443) │ -> │   - HTML/CSS/JS        │   │  │    │
+│  │   │  │  + SSL + Gzip   │    │   - Assets estáticos   │   │  │    │
+│  │   │  └─────────────────┘    └───────────────────────┘   │  │    │
+│  │   └──────────────────────────────────────────────────────┘  │    │
+│  └─────────────────────────────────────────────────────────────┘    │
+│                                  │                                   │
+│                                  ▼                                   │
+│                          Internet (HTTPS)                            │
+└─────────────────────────────────────────────────────────────────────┘
+                                   │
+                                   ▼
+                    ┌─────────────────────────────┐
+                    │       Supabase Cloud        │
+                    │  - PostgreSQL Database      │
+                    │  - Edge Functions           │
+                    │  - Authentication           │
+                    └─────────────────────────────┘
 ```
 
 ---
@@ -652,5 +948,11 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 **Feito com ❤️ pela equipe MegaFone**
 
 *Transformando comunicação em resultados desde 2020*
+
+---
+
+### 👨‍💻 Desenvolvimento
+
+Este projeto foi desenvolvido por **Duffrayer Designer**, com dedicação e cuidado.
 
 </div>
