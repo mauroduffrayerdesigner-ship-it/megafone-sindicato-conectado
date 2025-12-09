@@ -4,6 +4,7 @@ import { Calendar, Clock, ArrowLeft, ArrowRight, Tag, Share2, Facebook, Twitter,
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { getPostBySlug, useBlogPosts } from "@/hooks/useBlogPosts";
+import DOMPurify from "dompurify";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -122,7 +123,7 @@ const BlogPost = () => {
                 prose-li:text-muted-foreground
                 prose-strong:text-foreground
                 prose-ul:my-4 prose-li:my-1"
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
             />
 
             {/* Share */}
