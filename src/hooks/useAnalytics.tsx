@@ -10,28 +10,30 @@ interface AnalyticsParams {
 export function useAnalytics({ startDate, endDate }: AnalyticsParams) {
   const today = startOfDay(new Date());
 
-  // Total de visitas no período
-  const { data: totalViews = 0, isLoading: totalLoading } = useQuery({
-    queryKey: ["analytics", "total", startDate.toISOString(), endDate.toISOString()],
+  // Total de sessões no período (visitas reais)
+  const { data: totalSessions = 0, isLoading: sessionsLoading } = useQuery({
+    queryKey: ["analytics", "sessions", startDate.toISOString(), endDate.toISOString()],
     queryFn: async () => {
-      const { count } = await supabase
+      const { data } = await supabase
         .from("page_views")
-        .select("*", { count: "exact", head: true })
+        .select("session_id")
         .gte("created_at", startDate.toISOString())
         .lte("created_at", endDate.toISOString());
-      return count || 0;
+      if (!data) return 0;
+      return new Set(data.map(d => d.session_id).filter(Boolean)).size;
     },
   });
 
-  // Visitas de hoje
-  const { data: todayViews = 0, isLoading: todayLoading } = useQuery({
-    queryKey: ["analytics", "today"],
+  // Sessões de hoje
+  const { data: todaySessions = 0, isLoading: todaySessionsLoading } = useQuery({
+    queryKey: ["analytics", "sessionsToday"],
     queryFn: async () => {
-      const { count } = await supabase
+      const { data } = await supabase
         .from("page_views")
-        .select("*", { count: "exact", head: true })
+        .select("session_id")
         .gte("created_at", today.toISOString());
-      return count || 0;
+      if (!data) return 0;
+      return new Set(data.map(d => d.session_id).filter(Boolean)).size;
     },
   });
 
@@ -45,41 +47,54 @@ export function useAnalytics({ startDate, endDate }: AnalyticsParams) {
         .gte("created_at", startDate.toISOString())
         .lte("created_at", endDate.toISOString());
       if (!data) return 0;
-      return new Set(data.map(d => d.visitor_id)).size;
+      return new Set(data.map(d => d.visitor_id).filter(Boolean)).size;
     },
   });
 
-  // Visitas por dia no período
-  const { data: viewsByDay = [], isLoading: byDayLoading } = useQuery({
-    queryKey: ["analytics", "byDay", startDate.toISOString(), endDate.toISOString()],
+  // Total de page views no período (para calcular páginas/sessão)
+  const { data: totalPageViews = 0, isLoading: pageViewsLoading } = useQuery({
+    queryKey: ["analytics", "pageViews", startDate.toISOString(), endDate.toISOString()],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("page_views")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", startDate.toISOString())
+        .lte("created_at", endDate.toISOString());
+      return count || 0;
+    },
+  });
+
+  // Sessões por dia no período (para gráfico)
+  const { data: sessionsByDay = [], isLoading: byDayLoading } = useQuery({
+    queryKey: ["analytics", "sessionsByDay", startDate.toISOString(), endDate.toISOString()],
     queryFn: async () => {
       const { data } = await supabase
         .from("page_views")
-        .select("created_at")
+        .select("created_at, session_id")
         .gte("created_at", startDate.toISOString())
         .lte("created_at", endDate.toISOString())
         .order("created_at", { ascending: true });
 
       if (!data) return [];
 
-      // Inicializar todos os dias com 0
-      const counts: Record<string, number> = {};
+      // Inicializar todos os dias com Set vazio
+      const sessionsByDate: Record<string, Set<string>> = {};
       const days = eachDayOfInterval({ start: startDate, end: endDate });
       days.forEach(day => {
-        counts[format(day, "dd/MM")] = 0;
+        sessionsByDate[format(day, "dd/MM")] = new Set();
       });
 
-      // Contar visitas por dia
+      // Agrupar sessões por dia
       data.forEach(row => {
         const date = format(new Date(row.created_at), "dd/MM");
-        if (counts[date] !== undefined) {
-          counts[date]++;
+        if (sessionsByDate[date] && row.session_id) {
+          sessionsByDate[date].add(row.session_id);
         }
       });
 
-      return Object.entries(counts).map(([date, views]) => ({
+      return Object.entries(sessionsByDate).map(([date, sessions]) => ({
         date,
-        views,
+        sessions: sessions.size,
       }));
     },
   });
@@ -109,13 +124,20 @@ export function useAnalytics({ startDate, endDate }: AnalyticsParams) {
     },
   });
 
-  const isLoading = totalLoading || todayLoading || uniqueLoading || byDayLoading || topPagesLoading;
+  // Calcular páginas por sessão
+  const pagesPerSession = totalSessions > 0 
+    ? (totalPageViews / totalSessions).toFixed(1) 
+    : "0";
+
+  const isLoading = sessionsLoading || todaySessionsLoading || uniqueLoading || pageViewsLoading || byDayLoading || topPagesLoading;
 
   return { 
-    totalViews, 
-    todayViews, 
-    uniqueVisitors, 
-    viewsByDay, 
+    totalSessions,
+    todaySessions,
+    uniqueVisitors,
+    totalPageViews,
+    pagesPerSession,
+    sessionsByDay,
     topPages,
     isLoading 
   };

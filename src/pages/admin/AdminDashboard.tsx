@@ -30,8 +30,8 @@ import { cn } from "@/lib/utils";
 import type { DateRange } from "react-day-picker";
 
 const chartConfig = {
-  views: {
-    label: "Visitas",
+  sessions: {
+    label: "Sessões",
     color: "hsl(var(--primary))",
   },
   clicks: {
@@ -68,7 +68,7 @@ export default function AdminDashboard() {
   const { leads, isLoading: leadsLoading } = useLeads();
   const { posts, isLoading: postsLoading } = useBlogPosts();
   const { stats, isLoading: newsletterLoading } = useNewsletter();
-  const { totalViews, todayViews, uniqueVisitors, viewsByDay, topPages, isLoading: analyticsLoading } = useAnalytics({ startDate, endDate });
+  const { totalSessions, todaySessions, uniqueVisitors, totalPageViews, pagesPerSession, sessionsByDay, topPages, isLoading: analyticsLoading } = useAnalytics({ startDate, endDate });
   const { totalClicks: whatsappClicks, todayClicks: whatsappTodayClicks, clicksByDay, isLoading: whatsappLoading } = useWhatsAppAnalytics(startDate, endDate);
 
   const isLoading = leadsLoading || postsLoading || newsletterLoading || analyticsLoading || whatsappLoading;
@@ -80,12 +80,12 @@ export default function AdminDashboard() {
 
   const publishedPosts = posts.filter(post => post.published).length;
 
-  // Combinar dados de visitas e WhatsApp para o gráfico
+  // Combinar dados de sessões e WhatsApp para o gráfico
   const combinedChartData = useMemo(() => {
-    const viewsMap = new Map(viewsByDay.map(v => [v.date, v.views]));
+    const sessionsMap = new Map(sessionsByDay.map(v => [v.date, v.sessions]));
     const clicksMap = new Map(clicksByDay.map(c => [c.date, c.clicks]));
     
-    const allDates = new Set([...viewsMap.keys(), ...clicksMap.keys()]);
+    const allDates = new Set([...sessionsMap.keys(), ...clicksMap.keys()]);
     
     return Array.from(allDates)
       .sort((a, b) => {
@@ -96,10 +96,10 @@ export default function AdminDashboard() {
       })
       .map(date => ({
         date,
-        views: viewsMap.get(date) || 0,
+        sessions: sessionsMap.get(date) || 0,
         clicks: clicksMap.get(date) || 0,
       }));
-  }, [viewsByDay, clicksByDay]);
+  }, [sessionsByDay, clicksByDay]);
 
   const statusColors: Record<string, string> = {
     novo: "bg-blue-500/10 text-blue-500",
@@ -122,24 +122,26 @@ export default function AdminDashboard() {
       : `ultimos_${period}_dias`;
     
     // Header
-    let csv = "Data,Visitas,Cliques WhatsApp\n";
+    let csv = "Data,Sessões,Cliques WhatsApp\n";
     
     // Dados combinados
     combinedChartData.forEach(row => {
-      csv += `${row.date},${row.views},${row.clicks}\n`;
+      csv += `${row.date},${row.sessions},${row.clicks}\n`;
     });
     
     // Resumo
     csv += "\n\nResumo\n";
-    csv += `Total de Visitas,${totalViews}\n`;
+    csv += `Total de Sessões,${totalSessions}\n`;
     csv += `Visitantes Únicos,${uniqueVisitors}\n`;
+    csv += `Page Views,${totalPageViews}\n`;
+    csv += `Páginas por Sessão,${pagesPerSession}\n`;
     csv += `Cliques WhatsApp,${whatsappClicks}\n`;
     csv += `Leads no Período,${newLeadsInPeriod}\n`;
-    csv += `Taxa de Conversão,${totalViews > 0 ? ((leads.length / totalViews) * 100).toFixed(2) : 0}%\n`;
+    csv += `Taxa de Conversão,${totalSessions > 0 ? ((leads.length / totalSessions) * 100).toFixed(2) : 0}%\n`;
     
     // Páginas mais visitadas
     csv += "\n\nPáginas Mais Visitadas\n";
-    csv += "Página,Visitas\n";
+    csv += "Página,Page Views\n";
     topPages.forEach(page => {
       csv += `${page.path},${page.views}\n`;
     });
@@ -230,14 +232,14 @@ export default function AdminDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total de Visitas
+              Sessões
             </CardTitle>
             <Eye className="h-5 w-5 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{totalViews}</div>
+            <div className="text-3xl font-bold">{totalSessions}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              +{todayViews} hoje
+              +{todaySessions} hoje
             </p>
           </CardContent>
         </Card>
@@ -253,6 +255,21 @@ export default function AdminDashboard() {
             <div className="text-3xl font-bold">{uniqueVisitors}</div>
             <p className="text-xs text-muted-foreground mt-1">
               no período
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Págs/Sessão
+            </CardTitle>
+            <BarChart3 className="h-5 w-5 text-blue-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{pagesPerSession}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              média de engajamento
             </p>
           </CardContent>
         </Card>
@@ -275,31 +292,16 @@ export default function AdminDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total de Leads
-            </CardTitle>
-            <Users className="h-5 w-5 text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{leads.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              <span className="text-green-500">+{newLeadsInPeriod}</span> no período
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
               Taxa de Conversão
             </CardTitle>
             <TrendingUp className="h-5 w-5 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
-              {totalViews > 0 ? ((leads.length / totalViews) * 100).toFixed(1) : 0}%
+              {totalSessions > 0 ? ((leads.length / totalSessions) * 100).toFixed(1) : 0}%
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              leads / visitas
+              leads / sessões
             </p>
           </CardContent>
         </Card>
@@ -310,14 +312,29 @@ export default function AdminDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
+              Page Views
+            </CardTitle>
+            <Eye className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{totalPageViews}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              total de páginas carregadas
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Leads no Período
             </CardTitle>
-            <TrendingUp className="h-5 w-5 text-blue-500" />
+            <Users className="h-5 w-5 text-yellow-500" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{newLeadsInPeriod}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              no período selecionado
+              de {leads.length} total
             </p>
           </CardContent>
         </Card>
@@ -351,29 +368,14 @@ export default function AdminDashboard() {
             </p>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Visitas Hoje
-            </CardTitle>
-            <BarChart3 className="h-5 w-5 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{todayViews}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              nas últimas 24h
-            </p>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Charts and Lists */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Combined Views + WhatsApp Chart */}
+        {/* Combined Sessions + WhatsApp Chart */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Visitas e WhatsApp no Período</CardTitle>
+            <CardTitle className="text-lg">Sessões e WhatsApp no Período</CardTitle>
           </CardHeader>
           <CardContent>
             {combinedChartData.length > 0 ? (
@@ -397,8 +399,8 @@ export default function AdminDashboard() {
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <Line
                       type="monotone"
-                      dataKey="views"
-                      name="Visitas"
+                      dataKey="sessions"
+                      name="Sessões"
                       stroke="hsl(var(--primary))"
                       strokeWidth={2}
                       dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 3 }}
@@ -422,7 +424,7 @@ export default function AdminDashboard() {
             <div className="flex justify-center gap-6 mt-4">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-primary" />
-                <span className="text-sm text-muted-foreground">Visitas</span>
+                <span className="text-sm text-muted-foreground">Sessões</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: "hsl(142, 76%, 36%)" }} />
