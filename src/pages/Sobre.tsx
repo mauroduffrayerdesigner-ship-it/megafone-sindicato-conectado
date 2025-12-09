@@ -1,64 +1,60 @@
 import { Layout } from "@/components/layout/Layout";
 import { Users, Target, Heart, Award } from "lucide-react";
-
 import wellingtonPhoto from "@/assets/team/wellington-tiago.jpeg";
 import milenaPhoto from "@/assets/team/milena-isabel.jpeg";
 import isabelaPhoto from "@/assets/team/isabela-veiga.jpeg";
 import leonardoPhoto from "@/assets/team/leonardo-costa.jpeg";
-
-const teamMembers = [
-  {
-    name: "Wellington Tiago",
-    role: "Proprietário e Relações Públicas",
-    photo: wellingtonPhoto,
-  },
-  {
-    name: "Milena Isabel",
-    role: "Coordenadora de Comunicação",
-    photo: milenaPhoto,
-  },
-  {
-    name: "Isabela Veiga",
-    role: "Social Media",
-    photo: isabelaPhoto,
-  },
-  {
-    name: "Leonardo Costa",
-    role: "Design e Fotógrafo",
-    photo: leonardoPhoto,
-  },
-];
-
-const expertise = [
-  { role: "Jornalistas", icon: "📰" },
-  { role: "Designers", icon: "🎨" },
-  { role: "Social Media", icon: "📱" },
-  { role: "Cientistas Sociais", icon: "📊" },
-  { role: "Fotógrafos", icon: "📷" },
-  { role: "Videomakers", icon: "🎬" },
-];
-
-const values = [
-  {
-    icon: Target,
-    title: "Missão",
-    description: "Ajudar sindicatos a se conectarem com suas bases por meio da comunicação digital, ampliar a visibilidade das ações sindicais e fortalecer a presença digital.",
-  },
-  {
-    icon: Heart,
-    title: "Compromisso",
-    description: "Unimos técnica, criatividade e compromisso político para fortalecer a comunicação dos sindicatos e gerar mais filiações, mobilização e força para a luta.",
-  },
-  {
-    icon: Award,
-    title: "Experiência",
-    description: "Nossa equipe nasceu nas lutas dos movimentos sociais, cobrindo manifestações e criando conteúdos que mobilizavam estudantes e trabalhadores.",
-  },
-];
-
+const teamMembers = [{
+  name: "Wellington Tiago",
+  role: "Proprietário e Relações Públicas",
+  photo: wellingtonPhoto
+}, {
+  name: "Milena Isabel",
+  role: "Coordenadora de Comunicação",
+  photo: milenaPhoto
+}, {
+  name: "Isabela Veiga",
+  role: "Social Media",
+  photo: isabelaPhoto
+}, {
+  name: "Leonardo Costa",
+  role: "Design e Fotógrafo",
+  photo: leonardoPhoto
+}];
+const expertise = [{
+  role: "Jornalistas",
+  icon: "📰"
+}, {
+  role: "Designers",
+  icon: "🎨"
+}, {
+  role: "Social Media",
+  icon: "📱"
+}, {
+  role: "Cientistas Sociais",
+  icon: "📊"
+}, {
+  role: "Fotógrafos",
+  icon: "📷"
+}, {
+  role: "Videomakers",
+  icon: "🎬"
+}];
+const values = [{
+  icon: Target,
+  title: "Missão",
+  description: "Ajudar sindicatos a se conectarem com suas bases por meio da comunicação digital, ampliar a visibilidade das ações sindicais e fortalecer a presença digital."
+}, {
+  icon: Heart,
+  title: "Compromisso",
+  description: "Unimos técnica, criatividade e compromisso político para fortalecer a comunicação dos sindicatos e gerar mais filiações, mobilização e força para a luta."
+}, {
+  icon: Award,
+  title: "Experiência",
+  description: "Nossa equipe nasceu nas lutas dos movimentos sociais, cobrindo manifestações e criando conteúdos que mobilizavam estudantes e trabalhadores."
+}];
 const Sobre = () => {
-  return (
-    <Layout>
+  return <Layout>
       {/* Hero */}
       <section className="pt-32 pb-20 bg-gradient-dark relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
@@ -99,8 +95,10 @@ const Sobre = () => {
                   Unindo compromisso e profissionalismo a serviço da classe trabalhadora.
                 </p>
                 <p>
-                  Nossa empresa é especializada em assessoria de imprensa, produção de conteúdo 
-                  para redes sociais como imagens e vídeos, para sindicatos e movimentos sociais.
+                  Nossa empresa é especializada em todo conjunto de técnicas de comunicação para sindicatos e entidades de classe, nossa equipe é composta por profissionais da area de assessoria de imprensa, design, videomaker, entre outros.
+
+
+
                 </p>
               </div>
             </div>
@@ -126,15 +124,13 @@ const Sobre = () => {
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
-            {values.map((value) => (
-              <div key={value.title} className="bg-background border border-border rounded-xl p-8">
+            {values.map(value => <div key={value.title} className="bg-background border border-border rounded-xl p-8">
                 <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
                   <value.icon className="text-primary" size={28} />
                 </div>
                 <h3 className="font-display text-xl font-bold mb-3">{value.title}</h3>
                 <p className="text-muted-foreground leading-relaxed">{value.description}</p>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </section>
@@ -154,25 +150,16 @@ const Sobre = () => {
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {teamMembers.map((member) => (
-              <div 
-                key={member.name}
-                className="group bg-gradient-card border border-border rounded-2xl overflow-hidden card-hover"
-              >
+            {teamMembers.map(member => <div key={member.name} className="group bg-gradient-card border border-border rounded-2xl overflow-hidden card-hover">
                 <div className="relative overflow-hidden">
-                  <img 
-                    src={member.photo} 
-                    alt={member.name}
-                    className="w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
+                  <img src={member.photo} alt={member.name} className="w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
                 <div className="p-6 text-center">
                   <h3 className="font-display text-xl font-bold mb-1">{member.name}</h3>
                   <p className="text-primary font-medium">{member.role}</p>
                 </div>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </section>
@@ -186,15 +173,10 @@ const Sobre = () => {
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {expertise.map((item) => (
-              <div 
-                key={item.role}
-                className="bg-background border border-border rounded-xl p-5 text-center card-hover"
-              >
+            {expertise.map(item => <div key={item.role} className="bg-background border border-border rounded-xl p-5 text-center card-hover">
                 <span className="text-3xl mb-3 block">{item.icon}</span>
                 <span className="font-semibold text-sm">{item.role}</span>
-              </div>
-            ))}
+              </div>)}
           </div>
           
           <div className="mt-12 text-center">
@@ -207,8 +189,6 @@ const Sobre = () => {
           </div>
         </div>
       </section>
-    </Layout>
-  );
+    </Layout>;
 };
-
 export default Sobre;
