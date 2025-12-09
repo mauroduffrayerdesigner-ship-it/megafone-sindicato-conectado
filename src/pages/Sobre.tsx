@@ -67,8 +67,13 @@ const Sobre = () => {
               Olá, Somos a <span className="text-primary">MegaFone</span>
             </h1>
             <p className="text-xl text-muted-foreground leading-relaxed">
-              A Megafone é uma agência de comunicação sindical fundada há 5 anos. Nosso objetivo é 
-              fortalecer a luta dos trabalhadores por meio de estratégias de comunicação eficazes.
+              A Megafone é uma agência de comunicação sindical fundada em 2020. Nosso objetivo é fortalecer a comunicação do sindicato com sua categoria de trabalhadores por meio de estratégias eficazes.
+
+
+
+
+
+
             </p>
           </div>
         </div>
