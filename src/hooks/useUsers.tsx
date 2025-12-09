@@ -12,9 +12,9 @@ interface User {
 
 interface CreateUserParams {
   email: string;
-  password?: string;
+  password: string;
   role: "admin" | "editor" | "user";
-  sendInvite: boolean;
+  forcePasswordChange?: boolean;
 }
 
 export function useUsers() {
@@ -42,21 +42,20 @@ export function useUsers() {
   });
 
   const createUser = useMutation({
-    mutationFn: async ({ email, password, role, sendInvite }: CreateUserParams) => {
+    mutationFn: async ({ email, password, role, forcePasswordChange = true }: CreateUserParams) => {
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
         throw new Error("Não autenticado");
       }
 
-      const action = sendInvite ? "invite" : "create";
-      const body: Record<string, unknown> = { action, email, role };
-      
-      if (!sendInvite && password) {
-        body.password = password;
-      }
-
       const response = await supabase.functions.invoke("manage-users", {
-        body,
+        body: { 
+          action: "create", 
+          email, 
+          password, 
+          role, 
+          forcePasswordChange 
+        },
       });
 
       if (response.error) {
@@ -73,9 +72,7 @@ export function useUsers() {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       toast({
         title: "Usuário criado",
-        description: variables.sendInvite 
-          ? `Convite enviado para ${variables.email}`
-          : `Usuário ${variables.email} criado com sucesso`,
+        description: `Usuário ${variables.email} criado com sucesso`,
       });
     },
     onError: (error: Error) => {

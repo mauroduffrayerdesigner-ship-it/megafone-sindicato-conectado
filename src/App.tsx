@@ -24,6 +24,7 @@ import BlogPostEditor from "./pages/admin/BlogPostEditor";
 import NewsletterPage from "./pages/admin/NewsletterPage";
 import IntegrationsPage from "./pages/admin/IntegrationsPage";
 import UsersPage from "./pages/admin/UsersPage";
+import ChangePassword from "./pages/admin/ChangePassword";
 
 const queryClient = new QueryClient();
 
@@ -52,7 +53,7 @@ const App = () => (
               <Route path="/obrigado" element={<Obrigado />} />
               <Route path="/politica-de-privacidade" element={<PoliticaPrivacidade />} />
               <Route path="/logarcomodono" element={<AdminLogin />} />
-              
+              <Route path="/admin/change-password" element={<ChangePassword />} />
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<AdminDashboard />} />

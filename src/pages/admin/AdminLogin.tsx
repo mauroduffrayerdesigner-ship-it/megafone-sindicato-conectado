@@ -86,6 +86,19 @@ export default function AdminLogin() {
           return;
         }
         
+        // Check for force_password_change flag in user metadata
+        const forcePasswordChange = sessionData.session.user.user_metadata?.force_password_change;
+        
+        if (forcePasswordChange) {
+          toast({
+            title: 'Troca de senha necessária',
+            description: 'Você precisa definir uma nova senha.',
+          });
+          navigate('/admin/change-password');
+          setIsSubmitting(false);
+          return;
+        }
+        
         toast({
           title: 'Login realizado com sucesso',
           description: 'Bem-vindo à área administrativa!',

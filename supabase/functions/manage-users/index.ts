@@ -7,11 +7,12 @@ const corsHeaders = {
 };
 
 interface ManageUsersRequest {
-  action: "list" | "invite" | "create" | "delete" | "updateRole";
+  action: "list" | "create" | "delete" | "updateRole";
   email?: string;
   password?: string;
   userId?: string;
   role?: "admin" | "editor" | "user";
+  forcePasswordChange?: boolean;
 }
 
 serve(async (req: Request) => {
@@ -66,8 +67,8 @@ serve(async (req: Request) => {
     // Create admin client for privileged operations
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { action, email, password, userId, role }: ManageUsersRequest = await req.json();
-    console.log(`Action: ${action}, Email: ${email}, UserId: ${userId}, Role: ${role}`);
+    const { action, email, password, userId, role, forcePasswordChange = true }: ManageUsersRequest = await req.json();
+    console.log(`Action: ${action}, Email: ${email}, UserId: ${userId}, Role: ${role}, ForcePasswordChange: ${forcePasswordChange}`);
 
     switch (action) {
       case "list": {
@@ -107,39 +108,6 @@ serve(async (req: Request) => {
         );
       }
 
-      case "invite": {
-        if (!email) {
-          return new Response(
-            JSON.stringify({ error: "Email é obrigatório" }),
-            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-
-        const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email);
-        if (inviteError) {
-          console.error("Error inviting user:", inviteError);
-          throw inviteError;
-        }
-
-        // Add role if specified
-        if (role && inviteData.user) {
-          const { error: roleInsertError } = await supabaseAdmin
-            .from("user_roles")
-            .insert({ user_id: inviteData.user.id, role });
-
-          if (roleInsertError) {
-            console.error("Error adding role:", roleInsertError);
-            // Don't fail the whole operation, just log
-          }
-        }
-
-        console.log(`Invited user: ${email}`);
-        return new Response(
-          JSON.stringify({ success: true, user: inviteData.user }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
       case "create": {
         if (!email || !password) {
           return new Response(
@@ -159,6 +127,9 @@ serve(async (req: Request) => {
           email,
           password,
           email_confirm: true,
+          user_metadata: {
+            force_password_change: forcePasswordChange,
+          },
         });
 
         if (createError) {
