@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUsers } from "@/hooks/useUsers";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,7 +43,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Plus, Trash2, Shield, Edit2, UserCog, Loader2 } from "lucide-react";
+import { Plus, Trash2, Shield, Edit2, UserCog, Loader2, RefreshCw, LogIn } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type UserRole = "admin" | "editor" | "user";
 
@@ -58,8 +60,27 @@ interface UserToEdit {
 }
 
 export default function UsersPage() {
-  const { users, isLoading, createUser, deleteUser, updateUserRole } = useUsers();
-  const { user: currentUser } = useAdmin();
+  const { users, isLoading, error, refetch, createUser, deleteUser, updateUserRole } = useUsers();
+  const { user: currentUser, refreshSession } = useAdmin();
+  const navigate = useNavigate();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    const success = await refreshSession();
+    if (success) {
+      await refetch();
+    }
+    setIsRefreshing(false);
+  };
+
+  const handleRelogin = () => {
+    navigate("/admin/login");
+  };
+
+  // Check for session errors
+  const isSessionError = error?.message?.includes("Sessão expirada") || 
+                          error?.message?.includes("autenticado");
   
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -143,6 +164,45 @@ export default function UsersPage() {
     );
   }
 
+  // Show session error with action buttons
+  if (isSessionError) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-display font-bold flex items-center gap-2">
+            <UserCog className="w-7 h-7" />
+            Gerenciamento de Usuários
+          </h1>
+        </div>
+        
+        <Alert variant="destructive">
+          <AlertDescription className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <span>Sua sessão expirou. Faça login novamente para continuar.</span>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+              >
+                {isRefreshing ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                )}
+                Tentar Novamente
+              </Button>
+              <Button size="sm" onClick={handleRelogin}>
+                <LogIn className="w-4 h-4 mr-2" />
+                Fazer Login
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -156,10 +216,20 @@ export default function UsersPage() {
             Gerencie os usuários e permissões do sistema
           </p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Usuário
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing}>
+            {isRefreshing ? (
+              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+            ) : (
+              <RefreshCw className="w-4 h-4 mr-2" />
+            )}
+            Atualizar
+          </Button>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Usuário
+          </Button>
+        </div>
       </div>
 
       {/* Users Table */}
