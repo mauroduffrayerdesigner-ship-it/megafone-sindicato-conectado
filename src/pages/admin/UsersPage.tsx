@@ -38,6 +38,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -70,16 +71,16 @@ export default function UsersPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<UserRole>("user");
-  const [creationType, setCreationType] = useState<"invite" | "manual">("invite");
+  const [forcePasswordChange, setForcePasswordChange] = useState(true);
 
   const handleCreateUser = async () => {
-    if (!email) return;
+    if (!email || password.length < 6) return;
     
     await createUser.mutateAsync({
       email,
-      password: creationType === "manual" ? password : undefined,
+      password,
       role,
-      sendInvite: creationType === "invite",
+      forcePasswordChange,
     });
     
     setIsCreateDialogOpen(false);
@@ -110,7 +111,7 @@ export default function UsersPage() {
     setEmail("");
     setPassword("");
     setRole("user");
-    setCreationType("invite");
+    setForcePasswordChange(true);
   };
 
   const openDeleteDialog = (user: UserToDelete) => {
@@ -263,36 +264,19 @@ export default function UsersPage() {
               />
             </div>
 
-            <div className="space-y-3">
-              <Label>Método de criação</Label>
-              <RadioGroup value={creationType} onValueChange={(v) => setCreationType(v as "invite" | "manual")}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="invite" id="invite" />
-                  <Label htmlFor="invite" className="font-normal cursor-pointer">
-                    Enviar convite por email (recomendado)
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="manual" id="manual" />
-                  <Label htmlFor="manual" className="font-normal cursor-pointer">
-                    Definir senha manualmente
-                  </Label>
-                </div>
-              </RadioGroup>
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha Temporária *</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Mínimo 6 caracteres"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Esta será a senha inicial do usuário.
+              </p>
             </div>
-
-            {creationType === "manual" && (
-              <div className="space-y-2">
-                <Label htmlFor="password">Senha *</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Mínimo 6 caracteres"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-            )}
 
             <div className="space-y-2">
               <Label htmlFor="role">Permissão *</Label>
@@ -307,6 +291,17 @@ export default function UsersPage() {
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="flex items-center space-x-2 pt-2">
+              <Checkbox
+                id="forcePasswordChange"
+                checked={forcePasswordChange}
+                onCheckedChange={(checked) => setForcePasswordChange(checked === true)}
+              />
+              <Label htmlFor="forcePasswordChange" className="font-normal cursor-pointer text-sm">
+                Forçar troca de senha no primeiro login (recomendado)
+              </Label>
+            </div>
           </div>
 
           <DialogFooter>
@@ -315,7 +310,7 @@ export default function UsersPage() {
             </Button>
             <Button 
               onClick={handleCreateUser}
-              disabled={!email || (creationType === "manual" && password.length < 6) || createUser.isPending}
+              disabled={!email || password.length < 6 || createUser.isPending}
             >
               {createUser.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
