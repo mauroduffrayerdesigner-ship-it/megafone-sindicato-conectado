@@ -27,7 +27,12 @@ serve(async (req: Request) => {
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
     // Create admin client for privileged operations
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
 
     // Verify the requesting user is an admin
     const authHeader = req.headers.get("Authorization");
@@ -39,11 +44,18 @@ serve(async (req: Request) => {
       );
     }
 
-    // Extract the JWT token from the Authorization header
-    const token = authHeader.replace("Bearer ", "");
-    
-    // Use admin client to get user from JWT token
-    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
+    // Create a client with the user's token to verify identity
+    const supabaseUser = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: { authorization: authHeader },
+      },
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+
+    const { data: { user }, error: userError } = await supabaseUser.auth.getUser();
     if (userError || !user) {
       console.error("Failed to get user:", userError);
       return new Response(
