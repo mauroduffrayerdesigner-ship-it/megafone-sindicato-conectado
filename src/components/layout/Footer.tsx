@@ -1,10 +1,8 @@
 import { Link } from "react-router-dom";
 import { Mail, Phone, Instagram, Facebook, Linkedin } from "lucide-react";
 import logoMegafone from "@/assets/logo-megafone.png";
-
 export function Footer() {
-  return (
-    <footer className="bg-card border-t border-border">
+  return <footer className="bg-card border-t border-border">
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
@@ -21,16 +19,11 @@ export function Footer() {
           <div>
             <h4 className="font-display text-lg font-bold mb-4 text-foreground">Navegação</h4>
             <ul className="space-y-3">
-              {["Início", "Sobre", "Serviços", "Blog", "Contato"].map((item) => (
-                <li key={item}>
-                  <Link
-                    to={item === "Início" ? "/" : `/${item.toLowerCase()}`}
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                  >
+              {["Início", "Sobre", "Serviços", "Blog", "Contato"].map(item => <li key={item}>
+                  <Link to={item === "Início" ? "/" : `/${item.toLowerCase()}`} className="text-muted-foreground hover:text-primary transition-colors">
                     {item}
                   </Link>
-                </li>
-              ))}
+                </li>)}
             </ul>
           </div>
 
@@ -51,46 +44,24 @@ export function Footer() {
             <h4 className="font-display text-lg font-bold mb-4 text-foreground">Contato</h4>
             <ul className="space-y-3">
               <li>
-                <a
-                  href="mailto:megafone.criacao@gmail.com"
-                  className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
-                >
+                <a href="mailto:megafone.criacao@gmail.com" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
                   <Mail size={18} />
                   megafone.criacao@gmail.com
                 </a>
               </li>
               <li>
-                <a
-                  href="tel:+5541998504505"
-                  className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
-                >
+                <a href="tel:+5541998504505" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
                   <Phone size={18} />
                   (41) 99850-4505
                 </a>
               </li>
             </ul>
             <div className="flex gap-4 mt-6">
-              <a
-                href="#"
-                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
-                aria-label="Instagram"
-              >
+              <a href="#" className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors" aria-label="Instagram">
                 <Instagram size={20} />
               </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
-                aria-label="Facebook"
-              >
-                <Facebook size={20} />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
-                aria-label="LinkedIn"
-              >
-                <Linkedin size={20} />
-              </a>
+              
+              
             </div>
           </div>
         </div>
@@ -100,10 +71,7 @@ export function Footer() {
             © {new Date().getFullYear()} Megafone Comunicação Sindical. Todos os direitos reservados.
           </p>
           <div className="flex items-center gap-4">
-            <Link 
-              to="/politica-de-privacidade" 
-              className="text-muted-foreground text-sm hover:text-primary transition-colors"
-            >
+            <Link to="/politica-de-privacidade" className="text-muted-foreground text-sm hover:text-primary transition-colors">
               Política de Privacidade
             </Link>
             <span className="text-muted-foreground text-sm hidden md:inline">•</span>
@@ -113,6 +81,5 @@ export function Footer() {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 }
