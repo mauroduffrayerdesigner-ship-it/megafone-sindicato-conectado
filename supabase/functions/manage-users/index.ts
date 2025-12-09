@@ -26,6 +26,9 @@ serve(async (req: Request) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
+    // Create admin client for privileged operations
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
     // Verify the requesting user is an admin
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
@@ -36,12 +39,11 @@ serve(async (req: Request) => {
       );
     }
 
-    // Create client with user's token to verify identity
-    const supabaseUser = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-
-    const { data: { user }, error: userError } = await supabaseUser.auth.getUser();
+    // Extract the JWT token from the Authorization header
+    const token = authHeader.replace("Bearer ", "");
+    
+    // Use admin client to get user from JWT token
+    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
     if (userError || !user) {
       console.error("Failed to get user:", userError);
       return new Response(
@@ -51,7 +53,7 @@ serve(async (req: Request) => {
     }
 
     // Check if user is admin using the has_role function
-    const { data: isAdmin, error: roleError } = await supabaseUser.rpc("has_role", {
+    const { data: isAdmin, error: roleError } = await supabaseAdmin.rpc("has_role", {
       _user_id: user.id,
       _role: "admin",
     });
@@ -63,9 +65,6 @@ serve(async (req: Request) => {
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    // Create admin client for privileged operations
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
     const { action, email, password, userId, role, forcePasswordChange = true }: ManageUsersRequest = await req.json();
     console.log(`Action: ${action}, Email: ${email}, UserId: ${userId}, Role: ${role}, ForcePasswordChange: ${forcePasswordChange}`);
