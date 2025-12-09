@@ -12,6 +12,7 @@ import Servicos from "./pages/Servicos";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Contato from "./pages/Contato";
+import Obrigado from "./pages/Obrigado";
 import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/admin/AdminLogin";
@@ -47,6 +48,7 @@ const App = () => (
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/contato" element={<Contato />} />
+              <Route path="/obrigado" element={<Obrigado />} />
               <Route path="/politica-de-privacidade" element={<PoliticaPrivacidade />} />
               <Route path="/logarcomodono" element={<AdminLogin />} />
               
