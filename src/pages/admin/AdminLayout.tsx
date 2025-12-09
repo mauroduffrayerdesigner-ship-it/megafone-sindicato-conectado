@@ -4,6 +4,7 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { 
   LayoutDashboard, 
   Users, 
+  UserCog,
   FileText, 
   Mail, 
   Settings, 
@@ -19,6 +20,7 @@ import { cn } from "@/lib/utils";
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Leads", href: "/admin/leads", icon: Users },
+  { name: "Usuários", href: "/admin/users", icon: UserCog },
   { name: "Blog", href: "/admin/blog", icon: FileText },
   { name: "Newsletter", href: "/admin/newsletter", icon: Mail },
   { name: "Integrações", href: "/admin/integrations", icon: Settings },
