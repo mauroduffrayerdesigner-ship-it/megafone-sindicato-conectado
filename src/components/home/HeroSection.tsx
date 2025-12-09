@@ -5,8 +5,8 @@ import logoMegafone from "@/assets/logo-megafone.png";
 
 const highlights = [
   "Gestão de Redes Sociais",
-  "Disparo em Massa WhatsApp",
   "Criação de Sites",
+  "Cobertura de Eventos",
 ];
 
 export function HeroSection() {
