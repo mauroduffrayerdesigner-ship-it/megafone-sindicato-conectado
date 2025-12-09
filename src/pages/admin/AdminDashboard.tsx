@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Users, FileText, Mail, TrendingUp, Clock, Eye, UserCheck, BarChart3, MessageCircle, Download, CalendarIcon } from "lucide-react";
+import { ResetAnalyticsDialog } from "@/components/admin/ResetAnalyticsDialog";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Link } from "react-router-dom";
@@ -224,6 +225,11 @@ export default function AdminDashboard() {
             <Download className="h-4 w-4 mr-2" />
             Exportar CSV
           </Button>
+
+          <ResetAnalyticsDialog 
+            pageViewsCount={totalPageViews} 
+            whatsappClicksCount={whatsappClicks} 
+          />
         </div>
       </div>
 
