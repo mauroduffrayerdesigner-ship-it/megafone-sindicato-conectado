@@ -1,7 +1,15 @@
+import { useState, useEffect } from "react";
 import { useConversionTracking } from "@/hooks/useConversionTracking";
 
 export function WhatsAppFloatButton() {
   const { trackWhatsAppFloatClick } = useConversionTracking();
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    // Delay para a animação de entrada
+    const timer = setTimeout(() => setIsVisible(true), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleClick = () => {
     trackWhatsAppFloatClick();
@@ -13,7 +21,11 @@ export function WhatsAppFloatButton() {
       target="_blank"
       rel="noopener noreferrer"
       onClick={handleClick}
-      className="fixed bottom-6 right-6 z-50 group"
+      className={`fixed bottom-6 right-6 z-50 group transition-all duration-500 ease-out ${
+        isVisible 
+          ? 'opacity-100 translate-y-0' 
+          : 'opacity-0 translate-y-8'
+      }`}
       aria-label="Fale conosco pelo WhatsApp"
     >
       {/* Tooltip */}
