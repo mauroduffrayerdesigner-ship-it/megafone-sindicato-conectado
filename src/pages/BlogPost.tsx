@@ -4,17 +4,48 @@ import { Calendar, Clock, ArrowLeft, ArrowRight, Tag, Share2, Facebook, Twitter,
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { getPostBySlug, useBlogPosts } from "@/hooks/useBlogPosts";
+import { subscribeToNewsletter } from "@/hooks/useNewsletter";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 import DOMPurify from "dompurify";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const { posts: allPosts, isLoading: isLoadingAll } = useBlogPosts(true);
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
   
   const { data: post, isLoading: isLoadingPost } = useQuery({
     queryKey: ["blog_post", slug],
     queryFn: () => getPostBySlug(slug!),
     enabled: !!slug,
   });
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    
+    setIsSubmitting(true);
+    try {
+      await subscribeToNewsletter(email);
+      toast({
+        title: "Inscrição realizada!",
+        description: "Você receberá nossas novidades em breve.",
+      });
+      setEmail("");
+    } catch (error: any) {
+      toast({
+        title: "Erro na inscrição",
+        description: error.code === "DUPLICATE_EMAIL" 
+          ? "Este e-mail já está cadastrado." 
+          : "Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const isLoading = isLoadingPost || isLoadingAll;
 
@@ -248,14 +279,17 @@ const BlogPost = () => {
             <p className="text-muted-foreground mb-8">
               Assine nossa newsletter e receba mais dicas de comunicação sindical diretamente no seu e-mail.
             </p>
-            <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <input
                 type="email"
                 placeholder="Seu melhor e-mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 className="flex-1 px-4 py-3 bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
-              <Button variant="hero" size="lg">
-                Assinar
+              <Button variant="hero" size="lg" type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Enviando..." : "Assinar"}
               </Button>
             </form>
           </div>
