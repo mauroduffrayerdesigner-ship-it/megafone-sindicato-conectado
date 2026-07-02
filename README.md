@@ -575,7 +575,9 @@ docker run -p 80:80 megafone
 
 ---
 
-### 🐳 Opção 5: Docker + Hostinger VPS (Self-Hosting Completo)
+### 🐳 Manual Legado: Docker + Hostinger VPS
+
+> ⚠️ **AVISO:** Este manual é mantido apenas como referência. O método recomendado é **Publish via Lovable** (ver acima). O deploy em VPS pode gerar tela branca por problemas de bundling do Vite, cache de Nginx ou configuração de variáveis de ambiente. Se você optar por este caminho, terá que lidar manualmente com esses problemas.
 
 Este guia detalha o deploy completo em uma VPS Hostinger usando Docker.
 
