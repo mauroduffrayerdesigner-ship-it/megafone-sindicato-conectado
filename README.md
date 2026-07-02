@@ -496,39 +496,64 @@ VALUES ('uuid-do-usuario-criado', 'admin');
 
 ### 🌐 Deploy em Produção
 
-#### Opção 1: Via Lovable (Recomendado)
+#### ✅ Opção Recomendada: Publicar via Lovable
 
-1. Abra o projeto no [Lovable](https://lovable.dev)
-2. Clique em **Share → Publish**
-3. Pronto! Seu site estará online em um subdomínio `.lovable.app`
-4. Opcionalmente, conecte um domínio personalizado
+Este é o método **oficialmente suportado e recomendado**. O Lovable cuida do build, bundling, SSL, CDN e SPA fallback automaticamente — **zero configuração de servidor**.
 
-#### Opção 2: Vercel
+**Passo a passo:**
+
+1. Abra o projeto no [Lovable](https://lovable.dev/projects/f24b09b4-2f9e-40d4-a80c-a6006c68c660)
+2. Clique no botão **Publish** (canto superior direito)
+3. O site fica disponível em `https://megafone-sindicato-conectado.lovable.app`
+4. Para deploys futuros, basta clicar em **Update** após alterações
+
+**Conectar domínio personalizado (ex: `megafone.duffrayerdesigner.com`):**
+
+1. **Project Settings → Domains → Connect Domain**
+2. Digite o subdomínio desejado
+3. No painel DNS do seu registrador (Hostinger, Cloudflare, etc), adicione:
+   - Registro **A** → nome `megafone` (ou `@` para raiz) → valor `185.158.133.1`
+   - Registro **TXT** → nome `_lovable` (ou conforme instruído) → valor fornecido pelo Lovable
+4. Aguarde propagação DNS (minutos a algumas horas)
+5. SSL é provisionado automaticamente ✅
+
+**Vantagens:**
+- ✅ Sem tela branca (Vite bundling resolvido automaticamente)
+- ✅ SSL/HTTPS automático
+- ✅ CDN global
+- ✅ SPA routing funciona (deep links + refresh sem 404)
+- ✅ Deploys em 1 clique
+- ✅ Rollback fácil pelo histórico do Lovable
+
+---
+
+#### ⚠️ Opções Alternativas (Legado)
+
+As opções abaixo (Vercel, Netlify, Docker, VPS) são mantidas como referência histórica, mas **não são mais recomendadas**. O deploy via Lovable elimina os problemas de bundling que causavam tela branca em ambientes self-hosted.
+
+<details>
+<summary><strong>Vercel</strong></summary>
 
 ```bash
-# Instale a CLI da Vercel
 npm install -g vercel
-
-# Deploy
 vercel
-
-# Siga as instruções e configure as variáveis de ambiente
+# Configure variáveis: VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY, VITE_SUPABASE_PROJECT_ID
 ```
+</details>
 
-#### Opção 3: Netlify
+<details>
+<summary><strong>Netlify</strong></summary>
 
 ```bash
-# Build do projeto
 npm run build
-
-# O diretório 'dist' pode ser deployado no Netlify
-# Via CLI ou arrastar para o dashboard
+# Faça upload da pasta 'dist' ou conecte o repositório
 ```
+</details>
 
-#### Opção 4: Docker (Self-Hosting Básico)
+<details>
+<summary><strong>Docker (Self-Hosting Básico)</strong></summary>
 
 ```dockerfile
-# Dockerfile
 FROM node:18-alpine as builder
 WORKDIR /app
 COPY package*.json ./
@@ -543,14 +568,16 @@ CMD ["nginx", "-g", "daemon off;"]
 ```
 
 ```bash
-# Build e run
 docker build -t megafone .
 docker run -p 80:80 megafone
 ```
+</details>
 
 ---
 
-### 🐳 Opção 5: Docker + Hostinger VPS (Self-Hosting Completo)
+### 🐳 Manual Legado: Docker + Hostinger VPS
+
+> ⚠️ **AVISO:** Este manual é mantido apenas como referência. O método recomendado é **Publish via Lovable** (ver acima). O deploy em VPS pode gerar tela branca por problemas de bundling do Vite, cache de Nginx ou configuração de variáveis de ambiente. Se você optar por este caminho, terá que lidar manualmente com esses problemas.
 
 Este guia detalha o deploy completo em uma VPS Hostinger usando Docker.
 
